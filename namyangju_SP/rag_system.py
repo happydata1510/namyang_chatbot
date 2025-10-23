@@ -31,14 +31,33 @@ class RAGSystem:
         self._cache_lock = threading.Lock()
         self._last_cache_cleanup = time.time()
 
-        # ChromaDB 클라이언트 초기화
-        self.chroma_client = chromadb.PersistentClient(
-            path=self.chroma_persist_directory,
-            settings=Settings(anonymized_telemetry=False),
-        )
-
-        # 컬렉션 이름
-        self.collection_name = "police_knowledge"
+        # ChromaDB 클라이언트 초기화 (Vercel 환경에서는 임시로 비활성화)
+        self.chroma_client = None
+        self.collection = None
+        
+        # Vercel 환경이 아닌 경우에만 ChromaDB 초기화
+        if not os.getenv('VERCEL'):
+            try:
+                self.chroma_client = chromadb.PersistentClient(
+                    path=self.chroma_persist_directory,
+                    settings=Settings(anonymized_telemetry=False),
+                )
+                
+                # 컬렉션 이름
+                self.collection_name = "police_knowledge"
+                
+                # 컬렉션 가져오기 또는 생성
+                try:
+                    self.collection = self.chroma_client.get_collection(self.collection_name)
+                except:
+                    self.collection = self.chroma_client.create_collection(
+                        name=self.collection_name,
+                        metadata={"description": "경찰청 관련 지식 베이스"},
+                    )
+            except Exception as e:
+                logger.warning(f"ChromaDB initialization failed: {str(e)}")
+                self.chroma_client = None
+                self.collection = None
 
         # 임베딩 모델 초기화 (지연 로딩)
         self._embedding_model = None
@@ -54,15 +73,6 @@ class RAGSystem:
             )
         else:
             self.llm = None
-
-        # 컬렉션 가져오기 또는 생성
-        try:
-            self.collection = self.chroma_client.get_collection(self.collection_name)
-        except:
-            self.collection = self.chroma_client.create_collection(
-                name=self.collection_name,
-                metadata={"description": "경찰청 관련 지식 베이스"},
-            )
     
     @property
     def embedding_model(self):
@@ -90,6 +100,11 @@ class RAGSystem:
     def add_documents(self, documents: List[Dict[str, Any]]):
         """문서를 벡터 데이터베이스에 추가"""
         try:
+            # ChromaDB가 초기화되지 않은 경우 스킵
+            if not self.collection:
+                logger.warning("ChromaDB not available, skipping document addition")
+                return False
+                
             texts = [doc["content"] for doc in documents]
             metadatas = [doc.get("metadata", {}) for doc in documents]
             ids = [doc.get("id", f"doc_{i}") for i, doc in enumerate(documents)]
@@ -114,6 +129,11 @@ class RAGSystem:
     ) -> List[Dict[str, Any]]:
         """유사한 문서 검색"""
         try:
+            # ChromaDB가 초기화되지 않은 경우 빈 결과 반환
+            if not self.collection:
+                logger.warning("ChromaDB not available, returning empty search results")
+                return []
+                
             # 쿼리 임베딩 생성
             query_embedding = self.embedding_model.encode([query]).tolist()[0]
 
