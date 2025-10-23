@@ -131,6 +131,9 @@ dmypy.json
 # ChromaDB
 chroma_db/
 
+# Django static files
+staticfiles/
+
 # macOS
 .DS_Store
 .DS_Store?

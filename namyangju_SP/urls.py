@@ -18,6 +18,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.views.generic import TemplateView
+from django.conf import settings
+from django.conf.urls.static import static
 from namyangju_SP import views
 
 urlpatterns = [
@@ -36,3 +38,8 @@ urlpatterns = [
     path("api/init_knowledge/", views.init_knowledge_base, name="init_knowledge_base"),
     path("chat/", TemplateView.as_view(template_name="chatbot.html")),
 ]
+
+# 개발 환경에서 정적 파일 서빙
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
