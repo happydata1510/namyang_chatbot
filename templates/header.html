@@ -1,0 +1,326 @@
+{% load static %}
+<style>
+  header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 80px;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 120px auto 0;
+    padding: 0 20px;
+  }
+  /* 일반 이미지 스타일 */
+  .zoomable-image {
+    cursor: pointer;
+  }
+  /* 슬라이더 이미지 스타일 */
+  .slider-images img {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  .slider-images img:hover {
+    transform: scale(1.05);
+  }
+  /* 모달 스타일 */
+  .image-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 2000;
+    cursor: default;
+  }
+  .image-modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .image-modal-content {
+    max-width: 90%;
+    max-height: 80vh;
+    object-fit: contain;
+    cursor: default;
+  }
+  .image-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 10px;
+    z-index: 2001;
+  }
+  /* 슬라이더 네비게이션 화살표 */
+  .modal-nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 40px;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    padding: 15px 10px;
+    border-radius: 5px;
+    z-index: 2001;
+    transition: background-color 0.3s;
+  }
+  .modal-nav-arrow:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
+  .modal-nav-prev {
+    left: 20px;
+  }
+  .modal-nav-next {
+    right: 20px;
+  }
+  .modal-nav-arrow:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+</style>
+
+<header>
+  <div class="nav-container">
+    <a href="{% url 'index' %}" class="home-btn">홈</a>
+
+    <div class="nav-logo-center">
+      <a href="{% url 'index' %}">
+      <img src="{% static 'images/police_Logo.png' %}" alt="경찰서 로고" style="height:50px;">
+      </a>
+    </div>
+
+    <select id="violence-select" onchange="window.location.href=this.value">
+      <option value="{% url 'common' %}">피해자 지원 안내</option>
+      <option value="{% url 'family' %}">가정폭력</option>
+      <option value="{% url 'child' %}">아동학대</option>
+      <option value="{% url 'elder' %}">노인학대</option>
+      <option value="{% url 'stalking' %}">스토킹(교제폭력)</option>
+      <option value="{% url 'school' %}">학교폭력</option>
+      <option value="{% url 'sex' %}">성폭력</option>
+      <option value="{% url 'agency' %}">신고 및 유관기관 안내</option>
+    </select>
+  </div>
+</header>
+
+<!-- 모달 HTML -->
+<div id="imageModal" class="image-modal">
+  <img id="modalImage" class="image-modal-content" src="" alt="확대된 이미지">
+  <button class="image-modal-close" onclick="closeModal()">&times;</button>
+  <button class="modal-nav-arrow modal-nav-prev" onclick="navigateImage(-1)">❮</button>
+  <button class="modal-nav-arrow modal-nav-next" onclick="navigateImage(1)">❯</button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 셀렉트 박스 설정
+  const selectBox = document.getElementById('violence-select');
+  const currentPath = window.location.pathname;
+  
+  // 홈화면인 경우 "유형선택" 옵션 추가
+  if (currentPath === '/' || currentPath === '/index/') {
+    const typeSelectOption = document.createElement('option');
+    typeSelectOption.value = '';
+    typeSelectOption.text = '유형선택';
+    typeSelectOption.selected = true;
+    selectBox.insertBefore(typeSelectOption, selectBox.firstChild);
+  } else {
+    // URL 패턴과 옵션 값 매핑
+    const pathMap = {
+      '/common/': "{% url 'common' %}",
+      '/child/': "{% url 'child' %}",
+      '/family/': "{% url 'family' %}",
+      '/elder/': "{% url 'elder' %}",
+      '/school/': "{% url 'school' %}",
+      '/sex/': "{% url 'sex' %}",
+      '/stalking/': "{% url 'stalking' %}",
+      '/agency/': "{% url 'agency' %}"
+    };
+
+    // 현재 경로에 해당하는 옵션 찾기
+    for (let path in pathMap) {
+      if (currentPath.includes(path)) {
+        selectBox.value = pathMap[path];
+        break;
+      }
+    }
+  }
+
+  // 모달 요소
+  const modal = document.getElementById('imageModal');
+  const modalImg = document.getElementById('modalImage');
+  let currentImageIndex = 0;
+  let currentImageGroup = [];
+
+  // 모달 열기 함수
+  window.openModal = function(imgSrc, imageGroup = null, triggerEl = null) {
+    if (triggerEl && triggerEl.closest('.violence-type-box')) return;
+    // 슬라이더 이미지 그룹이 있는 경우
+    if (imageGroup && imageGroup.length > 1) {
+      currentImageGroup = imageGroup;
+      currentImageIndex = 0;
+      modalImg.src = currentImageGroup[currentImageIndex];
+      updateNavigationButtons();
+    } else {
+      currentImageGroup = [];
+      modalImg.src = imgSrc;
+      document.querySelector('.modal-nav-prev').style.display = 'none';
+      document.querySelector('.modal-nav-next').style.display = 'none';
+    }
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  };
+
+  // 모달 닫기 함수
+  window.closeModal = function() {
+    modal.classList.remove('show');
+    document.body.style.overflow = 'auto';
+    currentImageGroup = [];
+  };
+
+  // 이미지 네비게이션 함수
+  window.navigateImage = function(direction) {
+    if (currentImageGroup.length === 0) return;
+    
+    currentImageIndex = (currentImageIndex + direction + currentImageGroup.length) % currentImageGroup.length;
+    modalImg.src = currentImageGroup[currentImageIndex];
+    updateNavigationButtons();
+  };
+
+  // 네비게이션 버튼 상태 업데이트
+  function updateNavigationButtons() {
+    const prevBtn = document.querySelector('.modal-nav-prev');
+    const nextBtn = document.querySelector('.modal-nav-next');
+    
+    prevBtn.style.display = 'block';
+    nextBtn.style.display = 'block';
+    
+    if (currentImageGroup.length <= 1) {
+      prevBtn.style.display = 'none';
+      nextBtn.style.display = 'none';
+    }
+  }
+
+  // 모달 배경 클릭 시 닫기
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
+  // 동적 이미지 감지 (MutationObserver)
+  let observer;
+  function setupImageClickEvents() {
+    // MutationObserver 일시 중지
+    if (observer) observer.disconnect();
+    // 카드 내부 이미지는 클릭 이벤트만 제거
+    document.querySelectorAll('.card img').forEach(img => {
+      const clone = img.cloneNode(true);
+      img.parentNode.replaceChild(clone, img);
+    });
+    // 나머지 이미지에만 모달 바인딩
+    const images = document.querySelectorAll('img:not(.nav-logo-center img):not(.card img)');
+    images.forEach(img => {
+      if (!img.classList.contains('zoomable-image')) {
+        img.classList.add('zoomable-image');
+        img.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          const sliderGroup = this.closest('.slider-images');
+          if (sliderGroup) {
+            const sliderImages = Array.from(sliderGroup.querySelectorAll('img')).map(img => img.src);
+            openModal(this.src, sliderImages, this);
+          } else {
+            openModal(this.src, null, this);
+          }
+        });
+      }
+    });
+    // MutationObserver 재개
+    if (observer) observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  observer = new MutationObserver(function(mutations) {
+    let shouldRebind = false;
+    mutations.forEach(function(mutation) {
+      mutation.addedNodes.forEach(function(node) {
+        if (
+          node.nodeType === 1 &&
+          node.matches &&
+          (
+            node.matches('img:not(.nav-logo-center img):not(.card img)') ||
+            (node.querySelector && node.querySelector('img:not(.nav-logo-center img):not(.card img)'))
+          )
+        ) {
+          shouldRebind = true;
+        }
+      });
+    });
+    if (shouldRebind) {
+      setupImageClickEvents();
+    }
+  });
+
+  // bfcache(뒤로가기) 복귀 시에도 항상 이벤트 재설정
+  window.addEventListener('pageshow', function(event) {
+    setupImageClickEvents();
+  });
+  window.addEventListener('popstate', function(event) {
+    setupImageClickEvents();
+  });
+
+  // 혹시라도 남아있는 이벤트를 전역에서 차단
+  document.body.addEventListener('click', function(e) {
+    // 가장 가까운 img가 .card 내부에 있으면 모달 차단 (preventDefault 제거)
+    const img = e.target.closest('img');
+    if (img && img.closest('.card')) {
+      e.stopPropagation();
+      return false;
+    }
+  }, true);
+
+  // 초기 설정
+  setupImageClickEvents();
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('a').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      var href = link.getAttribute('href');
+      // 내부 페이지 링크는 제외하고, 외부 링크만 기록
+      if (href && !href.startsWith('/') && !href.startsWith('{% url')) {
+        fetch('/api/record_link_click/', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({href: href})
+        });
+      }
+    });
+  });
+});
+</script>

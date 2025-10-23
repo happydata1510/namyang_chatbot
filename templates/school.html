@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>학교폭력 지원 안내</title>
+  <link rel="stylesheet" href="{% static '/css/style.css'%}">
+  <script src="{% static '/js/script.js'%}"></script>
+  <style>
+    .flow-diagram {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 3px;
+      margin: 15px auto;
+      font-size: 1.1em;
+      padding-bottom: 5px;
+      justify-content: center;
+      width: 100%;
+    }
+    .flow-step {
+      padding: 12px 6px;
+      border-radius: 8px;
+      background: #f5f5f5;
+      text-align: center;
+      flex: 1;
+      white-space: normal;
+      min-width: 0;
+      font-size: 1em;
+      line-height: 1.4;
+    }
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2em;
+      color: #666;
+      padding: 0 2px;
+      flex: 0 0 auto;
+    }
+    @media (max-width: 768px) {
+      .flow-diagram {
+        font-size: 1.05em;
+        gap: 3px;
+      }
+      .flow-step {
+        padding: 10px 5px;
+        font-size: 0.95em;
+      }
+      .flow-arrow {
+        font-size: 1.1em;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% include 'header.html' %}
+  <div class="container">
+    <h1>학교폭력 지원 안내</h1>
+    <h2>학교폭력 신고 안내</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      <b>112신고 및 117신고</b>
+      <br>학교 홈페이지, 담임·상담교사, 학생 보호 원스톱 온라인 지원 시스템(어울림 앱) 등</li>
+    </ul>
+    </div>
+    <h2>학교폭력 처리 절차<br class="mobile-br"> (112·117신고)</h2>
+    <div style="font-weight: bold; margin: 20px 0 10px 0; font-size: 1.2em; color: #3f6ea5; text-align: center;">< 경찰 ></div>
+    <div class="flow-diagram">
+      <div class="flow-step">신고<br>내용확인</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">관련자<br>(피·가해학생 및 보호자 연락)<br>확인</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">관련자<br>면담</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">보호조치<br>진행</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">여청수사팀<br>수사연계</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">사건<br>수사진행</div>
+    </div>
+    <div style="font-weight: bold; margin: 20px 0 10px 0; font-size: 1.2em; color: #3f6ea5; text-align: center;">< 학교 ></div>
+    <div class="flow-diagram">
+      <div class="flow-step" style="background: #e8f5e9; color: #2e7d32;">관련학생 안전조치</div>
+      <div class="flow-arrow" style="color: #66bb6a;">→</div>
+      <div class="flow-step" style="background: #e8f5e9; color: #2e7d32;">보호자 연락 및 내용확인</div>
+      <div class="flow-arrow" style="color: #66bb6a;">→</div>
+      <div class="flow-step" style="background: #e8f5e9; color: #2e7d32;">학교폭력 전담기구 및<br> 교육지원청 학교폭력 사안 접수</div>
+      <div class="flow-arrow" style="color: #66bb6a;">→</div>
+      <div class="flow-step" style="background: #e8f5e9; color: #2e7d32;">전담조사관 사안조사<br>(학교폭력제로센터)</div>
+      <div class="flow-arrow" style="color: #66bb6a;">→</div>
+      <div class="flow-step" style="background: #e8f5e9; color: #2e7d32;">학교장 자체해결 또는<br> 학교폭력심의위 개최</div>
+    </div>
+
+    <h2>피해자 보호지원</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      <b>범죄피해자안전조치</b> (담당 경찰관에게 신청)
+      <br>- 범죄신고 등과 관련하여 보복을 당할 우려가 있는 범죄피해자, 범죄신고자, 목격자, 참고인 및 친족 등 안전조치 대상
+      <br>- 보호시설, 임시숙소, 특정시설 신변안전조치 및 / ICT 기술 : 112시스템 등록, 스마트워치 지급, CCTV 설치
+    </ul>
+    <ul class="agency-list">
+      <b>학생맞춤통합지원 홈페이지 <a href="https://www.kedi.re.kr/studentsupport/index.do" target="_blank">www.kedi.re.kr/studentsupport</a></b>
+    </ul>
+    </div>
+    <h2>유관기관 안내</h2>
+    <ul class="agency-list">
+      <b>남양주시 일시청소년쉼터</b>
+      <br><a href="tel:031-591-1319">☎ 031-591-1319</a> (<a href="tel:010-2463-1318">010-2463-1318</a>)</li>
+    </ul>
+    <div class="counseling-container">
+      <div class="counseling-item">
+        <ul class="agency-list">
+          <b>청소년상담</b>
+          <br><a href="tel:1388">☎ 1388</a></li>
+        </ul>
+      </div>
+      <div class="counseling-item">
+        <ul class="agency-list">
+          <b>학교폭력 상담</b>
+          <br><a href="tel:117">☎ 117</a></li>
+        </ul>
+      </div>
+      <div class="counseling-item">
+        <ul class="agency-list">
+          <b>자살예방상담</b>
+          <br><a href="tel:1393">☎ 1393</a></li>
+        </ul>
+      </div>
+      <div class="counseling-item">
+        <ul class="agency-list">
+          <b>도박중독상담</b>
+          <br><a href="tel:1336">☎ 1336</a></li>
+        </ul>
+      </div>
+    </div>
+    {% include 'footer.html' %}
+    <button id="scrollTopBtn" title="맨 위로">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 19V5M12 5L6 11M12 5l6 6" stroke="#3f6ea5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+  <script src="script.js?v=1.1"></script>
+  <script>
+    document.getElementById('violence-select').addEventListener('change', function() {
+      if(this.value) location.href = this.value;
+    });
+  </script>
+</body>
+</html> 

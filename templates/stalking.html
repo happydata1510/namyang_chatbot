@@ -1,0 +1,324 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>스토킹 지원 안내</title>
+  <link rel="stylesheet" href="{% static '/css/style.css'%}?v=1.1">
+  <script src="{% static '/js/script.js'%}"></script>
+</head>
+<body>
+  {% include 'header.html' %}
+  <div class="container">
+    <div class="title-container">
+      <h1 class="main-title">스토킹[교제폭력] 지원 안내</h1>
+      <h1 class="pocketbook-title">스토킹을 캐치(catch)하는 스케치북<br>(스토킹 피해 자가진단)</h1>
+    </div>
+
+<!-- 체크리스트 열기 버튼(우측 하단 플로팅) -->
+<button id="checklistFloatingBtn" class="checklist-fab" title="체크리스트 열기">
+ 남양주 남부경찰서 스케치북<br>(스토킹 피해 자가진단) 
+</button>
+
+
+<!-- 체크리스트 중앙 모달 -->
+<div id="checklistModal" class="checklist-modal" aria-hidden="true">
+  <div class="checklist-header">
+    <strong>남양주 남부경찰서 스케치북📋<br>(스토킹을 캐치하는 북)</strong>
+    
+      {% comment %} <div class="nav-logo-center">
+      <a href="{% url 'index' %}"> 
+      <img src="{% static 'images/icons8-sketchbook-64.png' %}" alt="스케치북 로고" style="width:60px; height:60px;">
+      </a>
+    </div> {% endcomment %}
+    <button type="button" id="closeChecklist" class="checklist-close" aria-label="닫기">×</button>
+  </div>
+
+  <ul id="checklistItems" class="checklist-list" role="list"></ul>
+  <div class="checklist-progress">
+    <span>체크된 항목: <b id="checkedCount">0</b>/<span id="totalCount">0</span></span>
+    <button type="button" id="resetChecklist" class="btn-reset">초기화</button>
+  </div>
+
+  {% comment %} <div class="checklist-actions">
+    <button type="button" id="resetChecklist" class="btn-reset">초기화</button>
+  </div> {% endcomment %}
+  <!--<img src="{% static 'images/pocketbook_tail.png' %}" alt="체크리스트 백그라운드" class="checklist-tail"> -->
+  <div class="checklist-notice" role="note" aria-label="체크리스트 안내">
+    <p><strong>1~9번</strong>에 해당하는 경우 스토킹 행위에 해당할 수 있습니다. 상대방의 의사에 반하여, 정당한 이유 없이 상대방 또는 그의 동거인·가족에게 특정 행위를 하여 불안감 또는 공포심을 일으키는 것을 스토킹 행위라고 합니다.</p>
+
+    <p><strong>1~9번의 행위</strong>가 점점 심해져 <strong>10번</strong>에도 해당하는 경우 스토킹 범죄에 해당하여 '스토킹처벌법'에 따라 신고·처벌할 수 있습니다.</p>
+
+    <p><strong>한 개 이상</strong> 해당된다면 혼자 고민하지 말고 지금 바로 도움을 요청하세요.</p>
+
+    <ul class="contact-list">
+      <li><strong>긴급전화</strong> <a href="tel:112">112</a></li>
+      <li><strong>민원전화</strong> <a href="tel:182">182</a></li>
+      <li><strong>남양주남부경찰서 여성청소년과</strong> <a href="tel:031-579-8358">031-579-8358</a></li>
+    </ul>
+    <p>스토킹 행위는 여러 사회적 관계 및 일상생활(직업, 고용, 채권·채무, 층간소음 분쟁 등)에서 다양한 형태로 발생합니다.</p>
+    <p>경찰에서는 스토킹 행위 발생 시 현장에서 긴급응급조치(접근금지) 등을 결정할 수 있으며, 스토킹 범죄로 발전하는 경우 상대방에 대한 잠정조치 및 피해자 안전조치 등 신청이 가능합니다.</p>
+    <p>또한, 임시숙소, 피해자 심리치료, 상담소 연계 등 다양한 기관을 통해 피해자를 지원하고 있습니다.</p>
+    <p>자세한 내용은 <a href="http://polbot.net">http://polbot.net</a> 사이트 참고바랍니다.</p>
+  </div>
+</div>
+
+<!-- 모달 뒤 어둡게 -->
+<div id="checklistBackdrop" class="checklist-backdrop"></div>
+
+
+    <h2>스토킹[교제폭력]</h2>
+    <div class="restorative-slider">
+      <button class="slider-btn prev"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+      <div class="slider-images">
+        <img src="{% static 'images/stalkingcard_1.png' %}" alt="스토킹1">
+        <img src="{% static 'images/stalkingcard_2.png' %}" alt="스토킹2">
+        <img src="{% static 'images/stalkingcard_3.png' %}" alt="스토킹3">
+        <img src="{% static 'images/stalkingcard_4.png' %}" alt="스토킹4">
+        <img src="{% static 'images/stalkingcard_5.png' %}" alt="스토킹5">
+        <img src="{% static 'images/stalkingcard_6.png' %}" alt="스토킹6">
+        <img src="{% static 'images/stalkingcard_7.png' %}" alt="스토킹7">
+        <img src="{% static 'images/stalkingcard_8.png' %}" alt="스토킹8">
+      </div>
+      <button class="slider-btn next"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/></svg></button>
+    </div>
+    <!-- (3) 교제폭력 처리 절차: 교제폭력 처리 절차 이미지 -->
+    <h2>스토킹/교제폭력 처리절차</h2>
+    <div class="dating-violence-img">
+      <img src="{% static 'images/stalking_img.png' %}?v=1.1" alt="교제폭력 처리절차" style="width:100%; height:auto; display:block;">
+    </div>
+    <div class="dating-violence-mobile">
+      <img src="{% static 'images/stalking_img_2.png' %}?v=1.0" alt="교제폭력 처리절차" loading="lazy">
+    </div>
+    <!-- (4) 스토킹 처벌 규정: 스토킹범죄의 처벌 등에 관한 법률, 잠정 조치( 접근 금지 등) 불이행 시, 긴급 응급 조치 불이행 시 -->
+    <h2>스토킹 처벌규정</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      <b>스토킹범죄의 처벌 등에 관한 법률</b>
+        <br> 3년 이하의 징역 또는 3천만원 이하의 벌금
+        <br><span style="font-size:0.92em; color:#7690e6;">※ 흉기 또는 그 밖의 위험한 물건을 휴대하거나 이용하는 경우 5년 이하의 징역 또는 5천만원 이하의 벌금
+        </span><br>
+      <br><b>잠정조치(접근금지 등) 불이행 시</b> 2년 이하의 징역 또는 2천만원 이하의 벌금
+      <br><b>긴급응급조치 불이행 시</b> 1년 이하의 징역 또는 1천만원 이하의 벌금
+    </ul>
+    </div>
+    <!-- (5) 피해자 보호 및 지원: ( 조치 방법, 기간, 지원 내용) -->
+    <h2>피해자 보호 및 지원</h2>
+    <table class="victim-support-table" style="table-layout:fixed; width:100%;">
+      <tr>
+        <th style="padding:8px; border:1px solid #eee; text-align:center !important; width:13%;">조치방법</th>
+        <th style="padding:8px; border:1px solid #eee; text-align:center; width:10%;">기간</th>
+        <th style="padding:8px; border:1px solid #eee; text-align:left; width:68%;">지원내용</th>
+      </tr>
+      <tr>
+        <td data-label="조치방법" style="padding:8px; border:1px solid #eee; text-align:left;">긴급응급조치<br>(현장경찰관에게 신청)</td>
+        <td data-label="기간" style="padding:8px; border:1px solid #eee; text-align:center;">1개월</td>
+        <td data-label="지원내용" style="padding:8px; border:1px solid #eee; text-align:left;">- 스토킹행위의 상대방등이나 그 주거등으로부터 100미터 이내 접근금지
+          <br>- 스토킹행위의 상대방등에 대한 전기통신을 이용한 접근금지
+        </td>
+      </tr>
+      <tr>
+        <td data-label="조치방법" style="padding:8px; border:1px solid #eee; text-align:left;">잠정조치<br>(담당수사관에게 신청)</td>
+        <td data-label="기간" style="padding:8px; border:1px solid #eee; text-align:center;">3개월
+          <br>(2회 연장가능)
+        </td>
+        <td data-label="지원내용" style="padding:8px; border:1px solid #eee; text-align:left;">- 피해자에 대한 스토킹범죄 중단에 과한 서면 경고
+          <br>- 피해자 또는 그의 동거인, 가족이나 그 주거등으로부터 100미터 이내 접근 금지
+          <br>- 피해자 또는 그의 동거인, 가족에 대한 전기통신을 이용한 접근금지
+          <br>- 위치추적 전자장치의 부착
+          <br>- 국가경찰관서의 유치장 또는 구치소에의 유치(최대 1개월)
+        </td>
+      </tr>
+    </table>
+    <!-- 피해자 보호 및 지원 포스터 -->
+    <div style="margin: 40px 0; text-align: center;">
+      <img src="{% static 'images/poster.png' %}" alt="스토킹 피해자 보호 및 지원 포스터" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    </div>
+    <div class="section-box">
+      <ul class="agency-list">
+        스토킹(교제폭력)(<a href="tel:031-579-8358">☎031-579-8358</a>)
+      </ul>
+    </div>
+    {% include 'footer.html' %}
+  </div>
+  
+  <button id="scrollTopBtn" title="맨 위로">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M12 19V5M12 5L6 11M12 5l6 6" stroke="#3f6ea5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  </button>
+
+  
+  <!-- (7) 셀렉트(다른 유형 이동) 기능: 셀렉트의 값이 변경되면 해당 페이지로 이동 -->
+  <script>
+    // 모달 열기/닫기 (중앙 팝업용)
+    const openBtn = document.getElementById('checklistFloatingBtn');
+    function openModal(){ /* ... */ }
+    if (openBtn) openBtn.addEventListener('click', openModal);
+
+    document.addEventListener('DOMContentLoaded', function () {
+    // --- 셀렉트 박스 현재 경로 동기화 (기존 기능 유지) ---
+        const selectBox = document.getElementById('violence-select');
+        if (selectBox) {
+        const currentPath = window.location.pathname;
+        const options = selectBox.options;
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].value && currentPath.includes(options[i].value)) {
+            selectBox.selectedIndex = i;
+            break;
+            }
+        }
+        }
+
+        // -------- 체크리스트 중앙 모달 --------
+        const modal = document.getElementById('checklistModal');
+        const backdrop = document.getElementById('checklistBackdrop');
+        const openBtn = document.getElementById('checklistFloatingBtn');
+        const closeBtn = document.getElementById('closeChecklist');
+        const listEl = document.getElementById('checklistItems');
+        const checkedEl = document.getElementById('checkedCount');
+        const totalEl = document.getElementById('totalCount');
+        const badgeEl = document.getElementById('checkCountBadge');
+        const resetBtn = document.getElementById('resetChecklist');
+
+        function isChecklistOnlyEntrance() {
+          return document.body.classList.contains('checklist-only')
+            || location.hash === '#checklist'
+            || new URLSearchParams(location.search).get('checklist') === '1';
+        }
+
+        // ✨ X 버튼: 전용 모드면 /stalking으로 이동, 아니면 그냥 닫기
+        if (closeBtn) closeBtn.addEventListener('click', () => {
+          if (isChecklistOnlyEntrance()) {
+            // 히스토리에 #checklist 남기지 않도록 replace 사용
+            location.replace(location.pathname); // => /stalking
+          } else {
+            closeModal(); // 기존 닫기 함수 그대로 사용
+          }
+        });
+
+        // ✨ 백드롭 클릭도 동일 동작(선택)
+        if (backdrop) backdrop.addEventListener('click', () => {
+          if (isChecklistOnlyEntrance()) {
+            location.replace(location.pathname);
+          } else {
+            closeModal();
+          }
+        });
+        // 포켓북 제목 클릭 시에도 열기
+        const pocketbookTitle = document.querySelector('.pocketbook-title');
+
+        // 체크 항목 정의(원하시면 자유롭게 수정 가능)
+        const CHECK_ITEMS = [
+        '1. 내 의사에 반하여 접근하거나, 따라다니거나, 길을 막아선 적이 있다.',
+        '2. 집 앞에서 나를 기다리거나 멀리서 지켜본 적이 있다.',
+        '3. 나의 일상생활 장소에 받고 싶지 않은 선물, 물건, 메모, 음식 등을 두고 간 적이 있다.',
+        '4. 현관문, 초인종 또는 창문 등을 부수려고 하거나 차량을 훼손한 적이 있다.',
+        '5. 원치 않는 전화, 문자, 메일, SNS 메시지, 사진, 동영상 등을 보낸 적이 있다(수신거부한 경우도 포함)',
+        '6. 나의 개인정보 또는 위치 정보 등을 온라인에 게시하거나 다른 사람에게 보낸 적이 있다.',
+        '7. 나의 개인정보를 이용하여 온라인상에서 나를 사칭한 적이 있다.',
+        '8. 나의 사진을 편집하거나 합성하여 온라인에 게시하거나 다른 사람에게 보낸 적이 있다.',
+        '9. 내 가족이나 동거인 등에게 위와 같은 행위를 한다.',
+        '10. 내가 연락 거부 의사 또는 하지 말라는 경고를 하였으나 2회 이상 위와 같은 행위를 하여 불안이 커지고 있거나 위와 같은 행위의 강도 또는 빈도가 점점 많아져 일상생활이 힘들다. '
+        ];
+
+        const STORAGE_KEY = 'stalkingChecklist_v1';
+
+        function loadState(){
+        try{
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if(!raw) return {};
+            return JSON.parse(raw) || {};
+        }catch(e){ return {}; }
+        }
+        function saveState(state){
+        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+        }
+
+        const state = loadState(); // {index: true/false}
+
+        // 항목 렌더링
+        listEl.innerHTML = '';
+        CHECK_ITEMS.forEach((text, idx) => {
+        const li = document.createElement('li');
+        const id = 'ck_'+idx;
+        const checked = !!state[idx];
+        li.innerHTML = `
+            <input type="checkbox" id="${id}" data-idx="${idx}" ${checked ? 'checked':''}>
+            <label for="${id}">${text}</label>
+        `;
+        listEl.appendChild(li);
+        });
+
+        function updateCounts(){
+        const inputs = listEl.querySelectorAll('input[type="checkbox"]');
+        const total = inputs.length;
+        let checked = 0;
+        inputs.forEach(i => { if(i.checked) checked++; });
+        checkedEl.textContent = checked;
+        totalEl.textContent = total;
+        if(badgeEl) badgeEl.textContent = checked;
+        // 접근성용 aria
+        modal.setAttribute('aria-label', `체크된 항목 ${checked}개 / 총 ${total}개`);
+        }
+        updateCounts();
+
+        // 변경 반영
+        listEl.addEventListener('change', (e) => {
+        if(e.target && e.target.matches('input[type="checkbox"]')){
+            const idx = e.target.dataset.idx;
+            state[idx] = e.target.checked;
+            saveState(state);
+            updateCounts();
+        }
+        });
+
+        // 초기화
+        resetBtn.addEventListener('click', () => {
+        Object.keys(state).forEach(k => state[k] = false);
+        saveState(state);
+        listEl.querySelectorAll('input[type="checkbox"]').forEach(i => i.checked = false);
+        updateCounts();
+        });
+
+        // 열기/닫기
+        function openModal(){
+        modal.classList.add('open');
+        backdrop.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        }
+        function closeModal(){
+        modal.classList.remove('open');
+        backdrop.classList.remove('show');
+        document.body.style.overflow = 'auto';
+        }
+
+        if(openBtn) openBtn.addEventListener('click', openModal);
+        if(closeBtn) closeBtn.addEventListener('click', closeModal);
+        if(backdrop) backdrop.addEventListener('click', closeModal);
+        if(pocketbookTitle) pocketbookTitle.addEventListener('click', openModal);
+        });
+
+document.addEventListener('DOMContentLoaded', function () {
+  // …(기존 코드 유지)…
+
+  // ✅  딥링크(#checklist 또는 ?checklist=1)로 바로 모달 오픈
+  const hasChecklistParam = new URLSearchParams(location.search).get('checklist') === '1';
+  const hasChecklistHash  = location.hash === '#checklist';
+
+  if (hasChecklistParam || hasChecklistHash) {
+    document.body.classList.add('checklist-only');
+
+    const modal    = document.getElementById('checklistModal');
+    const backdrop = document.getElementById('checklistBackdrop');
+    if (modal && backdrop) {
+      modal.classList.add('open');
+      backdrop.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+});
+</script>
+</body>
+</html> 

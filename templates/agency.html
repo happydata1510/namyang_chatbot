@@ -1,0 +1,465 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>신고 및 유관기관 안내</title>
+  <link rel="stylesheet" href="{% static '/css/style.css'%}?v=1.1">
+  <script src="{% static '/js/script.js'%}"></script>
+</head>
+<body>
+  {% include 'header.html' %}
+  <div class="container">
+    <h1>신고 및 유관기관 안내</h1>
+    <!--공통-->
+    <h2>신고 안내</h2>
+    <table style="width:100%; table-layout:fixed; border-collapse:collapse;">
+      <tr>
+        <th style="padding:8px; border:1px solid #eee; text-align:center !important; width:13%;">유형</th>
+        <th style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">관련사이트</th>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">가정폭력</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">가정폭력이란? <a href="https://www.safe182.go.kr/cont/homeLogContents.do?contentsNm=family_vio_overview" target="_blank" rel="noopener noreferrer">https://www.safe182.go.kr_family</a></td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">아동학대</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">아동학대란? <a href="https://www.safe182.go.kr/cont/homeLogContents.do?contentsNm=family_abuse_overview" target="_blank" rel="noopener noreferrer">https://www.safe182.go.kr_child</a></td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">스토킹</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">스토킹이란? <a href="https://www.safe182.go.kr/cont/homeLogContents.do?contentsNm=stalking_vio_overview" target="_blank" rel="noopener noreferrer">https://www.safe182.go.kr_stalking</a></td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">학교폭력</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">학교폭력이란? <a href="https://www.safe182.go.kr/cont/homeLogContents.do?contentsNm=school_vio_overview" target="_blank" rel="noopener noreferrer">https://www.safe182.go.kr_school</a></td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">성폭력</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">성폭력이란? <a href="https://www.safe182.go.kr/cont/homeLogContents.do?contentsNm=sexual_vio_overview" target="_blank" rel="noopener noreferrer">https://www.safe182.go.kr_sexual</a></td>
+      </tr>
+    </table>
+
+    <h2>유관기관 안내</h2>
+    <table style="table-layout:fixed; width:100%; border-collapse:collapse;">
+      <tr>
+        <th style="padding:8px; border:1px solid #eee; text-align:left; width:20%;">기관명</th>
+        <th style="padding:8px; border:1px solid #eee; text-align:left; width:68%;">지원내용</th>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">여성긴급전화<br><a href="tel:031-873-1366">031-873-1366</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">피해자 긴급구호·상담 가능</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">한마음 가족상담소<br><a href="tel:031-574-7189">031-574-7189</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">가정폭력·부부갈등·가족갈등 등 가족 내에 발생하는 문제 해결을 위한 전문상담기관</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">남양주시 가족센터<br><a href="tel:031-555-8261">031-555-8261</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">- 취약·위기가족·다문화가족을 위한 온가족 보듬사업 실시 <br> - 가족 내 다양한 갈등과 문제 해결, 가족구성원의 친밀감 증진을 위한 전문 상담 서비스 제공 (*유료, 회당 15,000원)</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">대한법률구조공단<br><a href="tel:031-523-9202">031-523-9202</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">무료법률 지원 가능</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">청소년 인터넷 도박 치료 센터<br><a href="tel:063-323-2285">063-323-2285</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">청소년 인터넷 도박 치료</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">정신건강 복지센터<br><a href="tel:031-592-5891">031-592-5891</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">우울증·스트레스검사·알코올중독 등 정신질환에 대한 상담 및 치료 문의 가능</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">경기북부 노인보호 전문기관<br><a href="tel:031-821-1461">031-821-1461</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">노인보호 전문기관 홈페이지 <a href="https://gg1389.or.kr" target="_blank" rel="noopener noreferrer">https://gg1389.or.kr</a></td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">여성긴급전화<br><a href="tel:1366">1366</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">- 긴급 상담 및 구조요청, 긴급피난처 제공, 법률·의료 연계 <br> - 심리상담 및 사후관리, 외국인 여성도 지원 (다국어 상담 가능)</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">서울동부 스마일센터<br><a href="tel:02-472-1295">02-472-1295</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">가정폭력·아동학대·성폭력·강력범죄 피해자 및 가족 대상 법률지원, 사례관리, 심리평가 및 치료, 임시거주 등 서비스 원스톱 제공</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">남양주 아동보호전문기관<br><a href="tel:031-592-9818">031-592-9818</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">남양주시 홍유릉로248번길39 다남프라자 204호<br>아동보호기관 홈페이지 <a href="http://www.nyj1391.or.kr" target="_blank" rel="noopener noreferrer">http://www.nyj1391.or.kr</a></td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">가정과 성상담소<br><a href="tel:0507-1360-1373">0507-1360-1373</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">상담·보호시설·의료기관 인도, 법률지원 연계, 수사·재판 동행</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">경기북동부 해바라기센터<br><a href="tel:031-874-3771">031-874-3771</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">초기 상담, 상담 치료, 의료비 지원, 법률지원, 수사·재판 동행</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">성폭력 피해자 보호시설<br><a href="tel:031-873-1366">031-873-1366</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">숙식제공, 자립·자활 교육</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">성폭행 피해자 치료</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left;">온세병원(정신건강의학과)<br><a href="tel:031-594-7912">031-594-7912</a><br><hr style="margin:4px 0;">한나산부인과(산부인과)<br><a href="tel:031-592-5100">031-592-5100</a></td>
+      </tr>
+    </table>
+
+    <h2>경기북부<br class="mobile-br"> 정신의료기관</h2>
+    <div class="section-box">
+      <ul class="agency-list">
+        정신건강 관련 입원 진행하실 때 참고하시기 바랍니다.
+      </ul>
+    </div>
+    <table class="info-table" style="width:100%; table-layout:fixed; border-collapse:collapse;">
+      <tr>
+        <th style="padding:8px; border:1px solid #eee; text-align:center !important; width:4%;">연번</th>
+        <th style="padding:8px; border:1px solid #eee; text-align:center; width:8%;">시군</th>
+        <th style="padding:8px; border:1px solid #eee; text-align:center; width:25%;">시설명</th>
+        <th style="padding:8px; border:1px solid #eee; text-align:center; width:25%;">주소</th>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">1</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">의정부시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">힐링스병원<br><a href="tel:031-853-9222">031-853-9222</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 의정부시 청사로48번길 19</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">2</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">의정부시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">새하늘병원<br><a href="tel:031-836-7341">031-836-7341</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 의정부시 평화로704</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">3</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">고양시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">화정병원<br><a href="tel:031-979-7572">031-979-7572</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 고양시 덕양구 서정마을로5, 3층</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">4</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">고양시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">늘푸른병원<br><a href="tel:031-967-9966">031-967-9966</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 고양시 덕양구 원당로139</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">5</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">고양시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">연세서울병원<br><a href="tel:031-907-9920">031-907-9920</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 고양시 일산동구 중앙로1200, 마두동 5,6,7층</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">6</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">고양시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">일산병원<br><a href="tel:031-900-0185">031-900-0185</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 고양시 일산동구 일산로100</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">7</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">남양주시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">축령정신병원<br><a href="tel:031-952-1832">031-952-1832</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 남양주시 수동면 외방로 172번길 58</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">8</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">남양주시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">축령복음병원<br><a href="tel:031-900-6661">031-900-6661</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 남양주시 수동면 외방로 172번길 50</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">9</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">파주시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">민들레병원<br><a href="tel:031-947-6400">031-947-6400</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 파주시 탄현면 소리개길 74-17</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">10</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">양주시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">소망병원<br><a href="tel:031-859-7997">031-859-7997</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 양주시 평화로1741</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">11</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">동두천시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">동원정신병원<br><a href="tel:031-867-4776">031-867-4776</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 동두천시 탑신로522</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">12</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">구리시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">연세마음병원<br><a href="tel:031-554-0070">031-554-0070</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 구리시 체육관로172번길 55</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">13</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">의정부시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">한도병원<br><a href="tel:031-877-6081">031-877-6081</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 의정부시 입석로36</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">14</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">의정부시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">한서중앙병원<br><a href="tel:031-875-7878">031-875-7878</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 의정부시 평화로447</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">15</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">고양시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">명지병원<br><a href="tel:031-810-5114">031-810-5114</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 고양시 화수로14번길 55</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">16</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">남양주시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">실버힐스병원<br><a href="tel:031-511-9494">031-511-9494</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 남양주시 경춘로 1260번길 하나프라자 5층</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">17</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">남양주시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">온세병원<br><a href="tel:031-954-7912">031-954-7912</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 남양주시 평내로29번길49 엠투프라자 10층</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">18</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">의정부시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">의정부의료원<br><a href="tel:031-828-5000">031-828-5000</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 의정부시 흥선로142</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">19</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">가평군</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">청평우리병원<br><a href="tel:031-585-5115">031-585-5115</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 가평군 청평면 경춘로 791-11</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:4%;">20</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:8%;">고양시</td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">고양정신병원<br><a href="tel:031-969-0885">031-969-0885</a></td>
+        <td style="padding:8px; border:1px solid #eee; text-align:left; width:25%;">경기도 고양시 덕양구 통일로 1102번길 46</td>
+      </tr>
+    </table>
+    <h2>정신의료기관 지도</h2>
+    <div id="map" style="width:100%;height:500px;margin:20px 0;"></div>
+
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=a3294b979160c055c63e9ff66c6dd338&libraries=services"></script>
+    <script>
+      // 의료기관 지도 초기화
+      function initHospitalMap() {
+        var mapContainer = document.getElementById('map');
+        var mapOption = {
+          center: new kakao.maps.LatLng(37.7381, 127.0337),
+          level: 9
+        };
+        var map = new kakao.maps.Map(mapContainer, mapOption);
+
+        var hospitals = [
+          {name: "힐링스병원", lat: 37.753036, lng: 127.070816},
+          {name: "새하늘병원", lat: 37.754753, lng: 127.043638},
+          {name: "화정병원", lat: 37.618622, lng: 126.846998},
+          {name: "늘푸른병원", lat: 37.663693, lng: 126.840035},
+          {name: "연세서울병원", lat: 37.654054, lng: 126.777166},
+          {name: "일산병원", lat: 37.645780, lng: 126.792684},
+          {name: "축령정신병원", lat: 37.738710, lng: 127.310150},
+          {name: "축령복음병원", lat: 37.738736, lng: 127.309439},
+          {name: "민들레병원", lat: 37.789110, lng: 126.709673},
+          {name: "소망병원", lat: 37.844695, lng: 127.054050},
+          {name: "동원정신병원", lat: 37.900314, lng: 127.136156},
+          {name: "연세마음병원", lat: 37.600106, lng: 127.139254},
+          {name: "한도병원", lat: 37.756039, lng: 127.021426},
+          {name: "한서중앙병원", lat: 37.731997, lng: 127.047664},
+          {name: "명지병원", lat: 37.641998, lng: 126.831173},
+          {name: "실버힐스병원", lat: 37.646802, lng: 127.234801},
+          {name: "온세병원", lat: 37.645962, lng: 127.235613},
+          {name: "의정부의료원", lat: 37.741282, lng: 127.042531},
+          {name: "청평우리병원", lat: 37.740577, lng: 127.419405},
+          {name: "고양정신병원", lat: 37.711542, lng: 126.854515}
+        ];
+
+        hospitals.forEach(function(hospital) {
+          var markerPosition = new kakao.maps.LatLng(hospital.lat, hospital.lng);
+          var marker = new kakao.maps.Marker({
+            position: markerPosition,
+            title: hospital.name
+          });
+          marker.setMap(map);
+
+          var infowindow = new kakao.maps.InfoWindow({
+            content: '<div style="padding:5px;font-size:12px;text-align:center;">' + hospital.name + '</div>'
+          });
+
+          kakao.maps.event.addListener(marker, 'mouseover', function() {
+            infowindow.open(map, marker);
+          });
+
+          kakao.maps.event.addListener(marker, 'mouseout', function() {
+            infowindow.close();
+          });
+        });
+      }
+
+      // 장애인 쉼터 지도 초기화
+      function initShelterMap() {
+        var shelterMapContainer = document.getElementById('shelterMap');
+        var shelterMapOption = {
+          center: new kakao.maps.LatLng(37.5381, 127.0337),
+          level: 10
+        };
+        var shelterMap = new kakao.maps.Map(shelterMapContainer, shelterMapOption);
+
+        var shelters = [
+          {name: "수원시 장애인종합복지관 부설단기보호센터", lat: 37.295979, lng: 127.036198},
+          {name: "소망재활원", lat: 37.452968, lng: 127.162086},
+          {name: "라온제나 장애인단기 보호시설", lat: 37.504751, lng: 126.749451},
+          {name: "빛과둥지 장애인단기보호센터", lat: 37.331094, lng: 126.867368},
+          {name: "상생단기보호시설", lat: 37.297849, lng: 127.577510},
+          {name: "광주시 장애인단기보호시설", lat: 37.371292, lng: 127.395593},
+          {name: "가온누리 단기보호센터", lat: 37.346422, lng: 126.942437},
+          {name: "로뎀의집 장애인365쉼터", lat: 37.543104, lng: 127.753003},
+          {name: "엘리엘동산 단기보호센터", lat:37.274338, lng: 127.387131 },
+          {name: "신망애 재활원", lat: 37.721156, lng: 127.315002},
+          {name: "장애인단기보호시설 곰두리네집", lat: 37.759243, lng: 127.031802 },
+          {name: "행복한 복지원", lat: 37.794708, lng: 127.007035},
+          {name: "해뜨는집", lat: 37.916431, lng: 127.208080},
+          {name: "동두천시 장애인단기보호센터", lat: 37.907216, lng: 127.047988}
+        ];
+
+        shelters.forEach(function(shelter) {
+          var markerPosition = new kakao.maps.LatLng(shelter.lat, shelter.lng);
+          var marker = new kakao.maps.Marker({
+            position: markerPosition,
+            title: shelter.name
+          });
+          marker.setMap(shelterMap);
+
+          var infowindow = new kakao.maps.InfoWindow({
+            content: '<div style="padding:5px;font-size:12px;text-align:center;">' + shelter.name + '</div>'
+          });
+
+          kakao.maps.event.addListener(marker, 'mouseover', function() {
+            infowindow.open(shelterMap, marker);
+          });
+
+          kakao.maps.event.addListener(marker, 'mouseout', function() {
+            infowindow.close();
+          });
+        });
+      }
+
+      // 페이지 로드 시 두 지도 모두 초기화
+      window.onload = function() {
+        initHospitalMap();
+        initShelterMap();
+      };
+    </script>
+    <h2>장애인쉼터현황</h2>
+    <table class="info-table" style="width:100%; table-layout:fixed; border-collapse:collapse;">
+      <thead>
+        <tr style="background:#f7fafd;">
+          <th style="padding:8px; border:1px solid #eee; text-align:center !important; width:4%;">연번</th>
+          <th style="padding:8px; border:1px solid #eee; text-align:center; width:8%;">시군</th>
+          <th style="padding:8px; border:1px solid #eee; text-align:center; width:25%;">쉼터명</th>
+          <th style="padding:8px; border:1px solid #eee; text-align:center; width:25%;">주소</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:8px; border:1px solid #eee;">1</td>
+          <td style="padding:8px; border:1px solid #eee;">수원시</td>
+          <td style="padding:8px; border:1px solid #eee;">수원시 장애인종합복지관 부설단기보호센터<br><a href="tel:031-548-5656">031-548-5656</a></td>
+          <td style="padding:8px; border:1px solid #eee;">경기도 수원시 영통구 창룡대로 255번지</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #eee;">2</td>
+          <td style="padding:8px; border:1px solid #eee;">성남시</td>
+          <td style="padding:8px; border:1px solid #eee;">소망재활원<br><a href="tel:031-741-3001">031-741-3001</a></td>
+          <td style="padding:8px; border:1px solid #eee;">경기도 성남시 중원구 산성대로 476번길12(금광동)</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #eee;">3</td>
+          <td style="padding:8px; border:1px solid #eee;">부천시</td>
+          <td style="padding:8px; border:1px solid #eee;">라온제나 장애인단기 보호시설<br><a href="tel:032-710-7326">032-710-7326</a></td>
+          <td style="padding:8px; border:1px solid #eee;">경기도 부천시 소향로13번길20 테마파크401</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #eee;">4</td>
+          <td style="padding:8px; border:1px solid #eee;">안산시</td>
+          <td style="padding:8px; border:1px solid #eee;">빛과둥지 장애인단기보호센터<br><a href="tel:031-416-9990">031-416-9990</a></td>
+          <td style="padding:8px; border:1px solid #eee;">경기도 안산시 상록구 옹주길 50-1(부곡동)</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #eee;">5</td>
+          <td style="padding:8px; border:1px solid #eee;">여주시</td>
+          <td style="padding:8px; border:1px solid #eee;">상생단기보호시설<br><a href="tel:031-884-7887">031-884-7887</a></td>
+          <td style="padding:8px; border:1px solid #eee;">경기도 여주시 능서면 중부대로 2806-5</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #eee;">6</td>
+          <td style="padding:8px; border:1px solid #eee;">광주시</td>
+          <td style="padding:8px; border:1px solid #eee;">광주시 장애인단기보호시설<br><a href="tel:031-762-8532">031-762-8532</a></td>
+          <td style="padding:8px; border:1px solid #eee;">경기도 광주시 곤지암읍 광여로 555-40</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #eee;">7</td>
+          <td style="padding:8px; border:1px solid #eee;">군포시</td>
+          <td style="padding:8px; border:1px solid #eee;">가온누리 단기보호센터<br><a href="tel:031-398-0123">031-398-0123</a></td>
+          <td style="padding:8px; border:1px solid #eee;">경기도 군포시 군포로 444, 4층(당동, 서일빌딩)</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #eee;">8</td>
+          <td style="padding:8px; border:1px solid #eee;">양평군</td>
+          <td style="padding:8px; border:1px solid #eee;">로뎀의집 장애인365쉼터<br><a href="tel:031-775-0338">031-775-0338</a></td>
+          <td style="padding:8px; border:1px solid #eee;">경기도 양평군 청운면 중골길24번길26</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #eee;">9</td>
+          <td style="padding:8px; border:1px solid #eee; text-align:left;">이천시</td>
+          <td style="padding:8px; border:1px solid #eee;">엘리엘동산 단기보호센터<br><a href="tel:031-775-0338">031-775-0338</a></td>
+          <td style="padding:8px; border:1px solid #eee;">경기도 이천시 마장면 이장로 205</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #eee;">10</td>
+          <td style="padding:8px; border:1px solid #eee;">남양주시</td>
+          <td style="padding:8px; border:1px solid #eee;">신망애 재활원<br><a href="tel:031-594-6644">031-594-6644</a></td>
+          <td style="padding:8px; border:1px solid #eee;">경기도 남양주시 수동면 비룡로97번길 17</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #eee;">11</td>
+          <td style="padding:8px; border:1px solid #eee;">의정부시</td>
+          <td style="padding:8px; border:1px solid #eee;">장애인단기보호시설 곰두리네집<br><a href="tel:031-829-8293">031-829-8293</a></td>
+          <td style="padding:8px; border:1px solid #eee;">경기도 의정부시 진등로11번길 9</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #eee;">12</td>
+          <td style="padding:8px; border:1px solid #eee;">양주시</td>
+          <td style="padding:8px; border:1px solid #eee;">행복한 복지원<br><a href="tel:031-826-3691">031-826-3691</a></td>
+          <td style="padding:8px; border:1px solid #eee;">경기도 양주시 백석읍 부흥로 397번길 21 나동</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #eee;">13</td>
+          <td style="padding:8px; border:1px solid #eee;">포천시</td>
+          <td style="padding:8px; border:1px solid #eee;">해뜨는집<br><a href="tel:031-535-5076">031-535-5076</a></td>
+          <td style="padding:8px; border:1px solid #eee;">경기도 포천시 신북면 중앙로 339번길 57</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #eee;">14</td>
+          <td style="padding:8px; border:1px solid #eee;">동두천시</td>
+          <td style="padding:8px; border:1px solid #eee;">동두천시 장애인단기보호센터<br><a href="tel:031-866-9600">031-866-9600</a></td>
+          <td style="padding:8px; border:1px solid #eee;">경기도 동두천시 상태로 64</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <h2>장애인쉼터 지도</h2>
+    <div id="shelterMap" style="width:100%;height:500px;margin:20px 0;"></div>
+
+    {% include 'footer.html' %}
+  </div>
+  <button id="scrollTopBtn" title="맨 위로">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M12 19V5M12 5L6 11M12 5l6 6" stroke="#3f6ea5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+  <script src="script.js?v=1.1"></script>
+</body>
+</html> 

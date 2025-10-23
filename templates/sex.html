@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>성폭력 지원 안내</title>
+  <link rel="stylesheet" href="{% static '/css/style.css'%}">
+  <script src="{% static '/js/script.js'%}"></script>
+</head>
+<body>
+  {% include 'header.html' %}
+  <div class="container">
+    <h1>성폭력 지원 안내</h1>
+    <h2>성폭력 신고 후 절차</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      신고 내용을 모니터링하여 담당수사관과 필요 지원·연계 등 논의하여 맞춤형 보호·지원 실시
+    </ul>
+    </div>
+    <h2>피해보호지원</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      <b>[상담연계]</b>
+        <br>피해 이후 트라우마 등 심리 불안이 지속될 시, 전문 기관에 심리치료, 상담 등 연계 가능<br>
+      <br><b>[불법촬영물 차단·삭제]</b>
+        <br>피해자 동의 시, '디지털 성범죄 피해자 지원센터'에 연계하고, 방심위에 '불법촬영물 추적시스템'을 통해 삭제·차단 요청
+    </ul>
+    </div>
+
+    <hr style="border:0;border-top:1px solid #e0e0e0;margin:32px 0 16px 0;">
+    <div class="section-box">
+      <ul class="agency-list">
+        성폭력(<a href="tel:031-579-8148">☎031-579-8148</a>)
+      </ul>
+    </div>
+    {% include 'footer.html' %}
+    <button id="scrollTopBtn" title="맨 위로">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 19V5M12 5L6 11M12 5l6 6" stroke="#3f6ea5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+  <script src="script.js?v=1.1"></script>
+  <script>
+    document.getElementById('violence-select').addEventListener('change', function() {
+      if(this.value) location.href = this.value;
+    });
+  </script>
+</body>
+</html> 

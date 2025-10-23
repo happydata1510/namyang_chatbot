@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>노인학대 지원 안내</title>
+  <link rel="stylesheet" href="{% static '/css/style.css'%}">
+  <script src="{% static '/js/script.js'%}"></script>
+</head>
+<body>
+  {% include 'header.html' %}
+  <div class="container">
+    <h1>노인학대 지원 안내</h1>
+    <h2>노인학대 신고 절차</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      경찰은 신고 내용을 경기북부노인보호전문기관에 통보하여 대상자는 피해보호 지원을 받을 수 있습니다.
+    </ul>
+    </div>
+    <div class="flow-diagram">
+      <div class="flow-step">신고접수</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">현장방문</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">사례판정</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">서비스계획</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">서비스제공</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">사후관리</div>
+    </div>
+    <h2>피해보호지원</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      <b>노인학대 상담전화 (<a href="tel:1577-1389">☎1577-1389</a>)</b>
+      <br><br>노인학대 피해자는 상담·법률·의료·쉼터·복지 등 다양한 서비스 제공 및 사후관리로 보호 받을 수 있습니다.
+      <br>노인보호전문기관에서는 학대 피해 노인을 학대 행위자로부터 분리하여 일정기간 보호하고, 심신 치유 프로그램을 제공하는 학대피해노인 전용쉼터를 운영하고 있습니다.
+    </ul>
+    </div>
+
+    <h2>주민등록 열람제한</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      가정폭력피해자의 의사와 관계없이 피해자의 거주지가 노출되어 2차 피해가 발생하는 것을 방지하기 위한 제도
+      <br>가족 중 가정폭력행위자 등 대상자를 지정하여 본인과 세대원 및 직계존비속의 주민등록표 열람 또는 등·초본 교부를 받지 못하도록 신청 가능</li>
+      <br><br><b>신청절차</b>
+      <br>신분증, 신청서, 증거서류 등 주민센터에 제출
+      <br><br><b>신청문의</b>
+      <br>전국 시·군·구 및 읍·면·동 주민센터
+    </ul>
+    </div>
+    {% include 'footer.html' %}
+    <button id="scrollTopBtn" title="맨 위로">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 19V5M12 5L6 11M12 5l6 6" stroke="#3f6ea5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+  <script src="script.js?v=1.1"></script>
+  <script>
+    document.getElementById('violence-select').addEventListener('change', function() {
+      if(this.value) location.href = this.value;
+    });
+  </script>
+</body>
+</html> 

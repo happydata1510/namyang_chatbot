@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>남양주남부경찰서 - 피해자 보호 지원 안내</title>
+  <link rel="stylesheet" href="{% static '/css/style.css'%}">
+  <script src="{% static '/js/script.js'%}"></script>
+  <style>
+    .zoomable-image {
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .zoomable-image:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  {% include 'header.html' %}
+  <div class="container">
+    <h1>피해자 지원 안내</h1>
+    <h2>범죄 피해자 지원 및<br class="mobile-br"> 보호제도 안내</h2>
+    <table class="top-info-table" style="table-layout:fixed; width:100%;">
+      <tr>
+        <th style="padding:8px; border:1px solid #eee; text-align:center !important; width:8%;">구분</th>
+        <th style="width:92%;">내용</th>
+      </tr>
+      <tr>
+        <td data-label="구분" style="padding:8px; border:1px solid #eee; text-align:left;">임시조치</td>
+        <td data-label="내용" style="text-align:left;">담당수사관에게 가해자 격리, 전기통신이용 연락 금지, 주거·직장 100M내 접근 금지, 상담 및 교육(아동학대) 등 임시조치를 신청하여 보호를 받으실 수 있습니다</td>
+      </tr>
+      <tr>
+        <td data-label="구분" style="padding:8px; border:1px solid #eee; text-align:left;">안전조치</td>
+        <td data-label="내용" style="text-align:left;">보복 및 재피해 우려 등 신변에 위해를 입을 우려가 있으면 112시스템 등록, 맞춤형 순찰, 스마트 워치 대여 등 대상자의 신변을 보호 할 수 있는 안전조치 신청도 가능합니다</td>
+      </tr>
+      <tr>
+        <td data-label="구분" style="padding:8px; border:1px solid #eee; text-align:left;">CCTV</td>
+        <td data-label="내용" style="text-align:left;">담당수사관에게 CCTV설치 신청, 피해자 주거지 내 설치된 모니터 또는 스마트폰을 통해 주변의 위험요소를 상시 확인하고 위급시 긴급신고 가능</td>
+      </tr>
+    </table>
+
+    <h2>원스톱 솔루션 센터</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      범죄피해자에게 필요한 법률·경제·심리·고용·복지·금융 등 다양한 지원 서비스를 한 곳에 모아 범죄 발생 초기부터 사후 관리까지 원스톱으로 맞춤형 통합 지원을 제공<br>
+      (<a href="tel:1577-1701">☎ 1577-1701</a>)
+    </ul>
+    </div>
+    <div class="restorative-slider">
+      <button class="slider-btn prev"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+      <div class="slider-images">
+        <img src="{% static 'images/onestop_01.png' %}" alt="원스톱 1">
+        <img src="{% static 'images/onestop_02.png' %}" alt="원스톱 2">
+        <img src="{% static 'images/onestop_03.png' %}" alt="원스톱 3">
+        <img src="{% static 'images/onestop_04.png' %}" alt="원스톱 4">
+        <img src="{% static 'images/onestop_05.png' %}" alt="원스톱 5">
+        <img src="{% static 'images/onestop_06.png' %}" alt="원스톱 6">
+        <img src="{% static 'images/onestop_07.png' %}" alt="원스톱 7">
+      </div>
+      <button class="slider-btn next"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/></svg></button>
+    </div>
+
+    <h2>피해자 보호명령</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      수사기관을 거치지 않고 직접 법원에 피해자보호명령을 신청하시면 가해자 격리, 연락 금지, 접근 금지 등 임시조치와 유사한 보호를 받으실 수 있습니다. 
+    </ul>
+    </div>
+    <div style="margin: 16px 0;">
+      <img src="{% static 'images/protect.png' %}" alt="피해자 보호명령" style="max-width:480px; width:100%; height:auto;">
+    </div>
+
+    <h2>주민등록 열람제한</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      가정폭력피해자의 의사와 관계없이 피해자의 거주지가 노출되어 2차 피해가 발생하는 것을 방지하기 위한 제도<br>
+      <br>가족 중 가정폭력행위자 등 대상자를 지정하여 본인과 세대원 및 직계존비속의 주민등록표 열람 또는 등·초본 교부를 받지 못하도록 신청 가능<br>
+      <br><b>신청절차</b>
+      <br>신분증, 신청서, 증거서류 등 주민센터에 제출
+      <br><br><b>신청문의</b>
+      <br>전국 시·군·구 및 읍·면·동 주민센터
+    </ul>
+    </div>
+    <h2>입원 유형</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      정신건강증진 및 정신질환자 복지서비스 지원에 관한 법률 
+    </ul>
+    </div>
+    <div style="margin: 16px 0;">
+      <img src="{% static 'images/hospital.png' %}" alt="입원종류" style="max-width:480px; width:100%; height:auto;">
+    </div>
+    <h2 class="restorative-title">회복적 대화모임</h2>
+    <div class="restorative-slider">
+      <button class="slider-btn prev"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+      <div class="slider-images">
+        <img src="{% static 'images/img_01.png' %}" alt="회복적 모임 1">
+        <img src="{% static 'images/img_02.png' %}" alt="회복적 모임 2">
+        <img src="{% static 'images/img_03.png' %}" alt="회복적 모임 3">
+        <img src="{% static 'images/img_04.png' %}" alt="회복적 모임 4">
+        <img src="{% static 'images/img_05.png' %}" alt="회복적 모임 5">
+        <img src="{% static 'images/img_06.png' %}" alt="회복적 모임 6">
+      </div>
+      <button class="slider-btn next"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/></svg></button>
+    </div>
+    <div class="section-box">
+    <ul class="agency-list">
+      (신청) 아동학대(<a href="tel:031-579-8815">☎031-579-8815</a>) / 가정폭력(<a href="tel:031-579-8814">☎031-579-8814</a>)
+    </ul>
+    </div>
+    {% include 'footer.html' %}
+    <button id="scrollTopBtn" title="맨 위로">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 19V5M12 5L6 11M12 5l6 6" stroke="#3f6ea5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+  <script src="script.js?v=1.1"></script>
+</body>
+</html> 

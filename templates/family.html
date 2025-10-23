@@ -1,0 +1,142 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>가정폭력 지원 안내</title>
+  <link rel="stylesheet" href="{% static '/css/style.css'%}">
+  <script src="{% static '/js/script.js'%}"></script>
+  <style>
+    .zoomable-image {
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .zoomable-image:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  {% include 'header.html' %}
+
+  <div class="container">
+    <h1>가정폭력 지원 안내</h1>
+    <table class="top-info-table" style="table-layout:fixed; width:100%;">
+      <tr>
+        <th style="padding:8px; border:1px solid #eee; text-align:center !important; width:8%;">구분</th>
+        <th style="width:92%;">내용</th>
+      </tr>
+      <tr>
+        <td data-label="구분" style="text-align:left;">임시조치</td>
+        <td data-label="내용" style="text-align:left;">담당수사관에게 가해자 격리, 전기통신이용 연락 금지, 주거·직장 100M 내 접근 금지 등 임시조치를 신청하여 보호를 받을 수 있습니다</td>
+      </tr>
+      <tr>
+        <td data-label="구분" style="text-align:left;">범죄피해자 안전조치</td>
+        <td data-label="내용" style="text-align:left;">보복 및 재피해 우려 등 신변에 위해를 입을 우려가 있으면 담당수사관에게 112시스템 등록, 맞춤형 순찰, 스마트 워치 대여 등 피해자 신변을 보호할 수 있는 안전조치 신청도 가능합니다</td>
+      </tr>
+      <tr>
+        <td data-label="구분" style="text-align:left;">임시숙소</td>
+        <td data-label="내용" style="text-align:left;">강력범죄 피해자 및 성·가정폭력 피해자 중 신변 위협 등으로 집으로 귀가하지 곤란한 대상자에게 임시로 숙소를 지원하는 제도<br><b>담당 경찰관에게 신청 (기본 1일)</b></td>
+      </tr>
+      <tr>
+        <td data-label="구분" style="text-align:left;">가정폭력 피해자 보호시설</td>
+        <td data-label="내용" style="text-align:left;">(여성긴급전화) 지역별 설치된 비공개 보호시설을 통해 가정폭력 피해자에게 숙식 제공, 전문적인 상담 및 치료, 법률적 지원과 더불어 자활을 지원합니다. <a href="tel:1366">(☎1366)</a></b></td>
+      </tr>
+    </table>
+
+    <h2>피해자 보호명령</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      수사기관을 거치지 않고 직접 법원에 피해자보호명령을 신청하시면 가해자 격리, 연락 금지, 접근 금지 등 임시조치와 유사한 보호를 받으실 수 있습니다.
+    </ul>
+    </div>
+    <div style="margin: 16px 0;">
+      <img src="{% static 'images/family_01.png' %}?v=1.1" alt="가정폭력 피해자 보호명령" class="zoomable-image" style="max-width:480px; width:100%; height:auto;">
+    </div>
+
+    <h2>가정폭력 처벌 규정</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      <b>가정폭력범죄의 처벌 등에 관한 특례법 위반</b>
+      <br>최대 5년 이하의 징역 또는 5천만원 이하의 벌금
+    </ul>
+    </div>
+    <div class="section-box">
+    <ul class="agency-list">
+      <b>긴급임시조치 위반</b>
+      <br>300만원 이하의 과태료
+    </ul>
+    <ul class="agency-list">
+      <b>임시조치 위반</b>
+      <br>①-②-③호 위반 시, 1년이하의 징역 또는 1천만원 이하의 벌금·구류에 처하거나 ⑤호 '유치장 유치' 신청 가능</li>
+    </ul>
+    <ul class="agency-list">
+      <b>피해자보호명령 위반</b>
+      <br>2년 이하의 징역 또는 2천만원 이하의 벌금·구류</li>
+    </ul>
+    <div class="restorative-slider">
+      <button class="slider-btn prev"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+      <div class="slider-images">
+        <img src="{% static 'images/family_02_1.png' %}?v=1.1" alt="처벌규정1">
+        <img src="{% static 'images/family_02_2.png' %}?v=1.1" alt="처벌규정2">
+        <img src="{% static 'images/family_02_3.png' %}?v=1.1" alt="처벌규정3">
+        <img src="{% static 'images/family_02_4.png' %}?v=1.1" alt="처벌규정4">
+      </div>
+      <button class="slider-btn next"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/></svg></button>
+    </div>
+
+    <h2>가정보호사건</h2>
+    <ul class="agency-list" style="font-size: 0.9em;">
+      <b>정의</b>
+      <br>가정폭력 범죄로 인하여 보호처분의 대상이 되는 사건으로 징역 등 형사처벌이 부과되지 않아 전과가 남지 않는 제도</li>
+    </ul>
+    <ul class="agency-list" style="font-size: 0.9em;">
+      <b>목적</b>
+      <br>보호처분을 통해 처벌의 목적이 아닌 환경의 조정과 가해자 성행 교정의 목적</li>
+    </ul>
+    <ul class="agency-list" style="font-size: 0.9em;">
+      <b>처분</b>
+      <br>접근금지, 사회봉사·수강명령, 보호관찰처분, 감호위탁, 치료위탁 및 상담위탁 처분</li>
+    </ul>
+    <div style="margin: 16px 0;">
+      <img src="{% static 'images/family_03_2.png' %}?v=1.1" alt="가정법원의결정" style="width: 500px; max-width:100%; height:auto;">
+    </div>
+
+    <h2>주민등록표열람 및<br>등·초본 교부 제한제도</h2>
+    <ul class="agency-list">
+      가정폭력피해자의 의사와 관계없이 피해자의 거주지가 노출되어 2차 피해가 발생하는 것을 방지하기 위한 제도
+      <br>가족 중 가정폭력행위자 등 대상자를 지정하여 본인과 세대원 및 직계존비속의 주민등록표 열람 또는 등·초본 교부를 받지 못하도록 신청 가능
+      <br><br><b>신청절차</b>
+      <br>신분증, 신청서, 증거서류 등 주민센터에 제출<br>
+      <br><b>신청문의</b>
+      <br>전국 시·군·구 및 읍·면·동 주민센터
+    </ul>
+
+    <h2 class="restorative-title">회복적 대화모임</h2>
+    <div class="restorative-slider">
+      <button class="slider-btn prev"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+      <div class="slider-images">
+        <img src="{% static 'images/img_01.png' %}?v=1.1" alt="회복적 모임 1">
+        <img src="{% static 'images/img_02.png' %}?v=1.1" alt="회복적 모임 2">
+        <img src="{% static 'images/img_03.png' %}?v=1.1" alt="회복적 모임 3">
+        <img src="{% static 'images/img_04.png' %}?v=1.1" alt="회복적 모임 4">
+        <img src="{% static 'images/img_05.png' %}?v=1.1" alt="회복적 모임 5">
+        <img src="{% static 'images/img_06.png' %}?v=1.1" alt="회복적 모임 6">
+      </div>
+      <button class="slider-btn next"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/></svg></button>
+    </div>
+    <ul class="agency-list">
+      가정폭력(<a href="tel:031-579-8813">☎031-579-8813</a> / <a href="tel:031-579-8814">031-579-8814</a>)
+    </ul>
+
+   {% include 'footer.html' %}
+    <button id="scrollTopBtn" title="맨 위로">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 19V5M12 5L6 11M12 5l6 6" stroke="#3f6ea5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+  <script src="script.js?v=1.1"></script>
+</body>
+</html> 

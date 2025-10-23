@@ -1,0 +1,159 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>아동학대 지원 안내</title>
+  <link rel="stylesheet" href="{% static '/css/style.css'%}">
+  <script src="{% static '/js/script.js'%}"></script>
+  <style>
+    .zoomable-image {
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .zoomable-image:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  {% include 'header.html' %}
+  <div class="container">
+    <h1>아동학대 지원 안내</h1>
+    <h2>아동학대 신고 절차</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      신고 내용을 남양주시청 아동보호팀에 통보하여 피해 보호 지원을 위한 직접 방문 상담 실시
+      <br>→ 아동보호 전문기관에서 피해아동 보호와 관련된 서비스를 제공합니다
+    </ul>
+    <div style="margin: 16px 0;">
+      <img src="{% static 'images/child_01.png' %}" alt="임시조치" style="max-width:480px; width:100%; height:auto;">
+    </div>
+    </div>
+    <h2>사건 처리 절차</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      경찰수사는 가,피해자 조사(증거확보, 참고인조사 등)를 거쳐 검찰에 송치할지를 결정합니다.
+    </ul>
+    <ul class="agency-list">
+      검찰로 송치 후 <b>기소</b>는 검사가 범죄 혐의가 있는 사람을 <b>법원</b>에 재판해 달라고 요청하는 행위로 형벌이 부과됨.
+      <br>* 불기소: 검사가 수사한 결과, 피의자를 재판에 넘기지 않기로 결정하는 것 (혐의없음·증거불충분 등)
+    </ul>
+    <ul class="agency-list">
+      아동보호사건은 형사 처벌이 아닌 <b>보호처분 (접근금지·보호관찰·상담위탁 등)을 통해</b>
+      <br>처벌의 목적이 아닌 아동을 보호하고 회복의 목적(전과남지 않음)이 있음.
+    </ul>
+    <div class="image-container" style="display: flex; justify-content: center; margin: 20px 0;">
+      <img src="{% static 'images/child_02_1.png' %}" alt="처리절차 1" style="max-width: 48%; height: auto;">
+      <img src="{% static 'images/child_02_2.png' %}" alt="처리절차 2" style="max-width: 48%; height: auto;">
+    </div>
+    </div>
+    <h2>피해보호지원</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      <b>임시조치</b>
+      <br>담당수사관에게 가해자 격리, 전기통신이용 연락 금지, 주거·직장 100M내 접근 금지 등 임시조치를 신청하여 보호를 받으실 수 있습니다.
+      <br><br><b>안전조치</b>
+        <br>보복 및 재피해 우려 등 신변에 위해를 입을 우려가 있으면 112시스템 등록, 맞춤형 순찰, 스마트 워치 대여 등 대상자의 신변을 보호할 수 있는 안전조치 신청도 가능합니다.</li>
+    </ul>
+    <div style="margin: 16px 0;">
+      <img src="{% static 'images/child_02.png' %}" alt="임시조치" style="max-width:480px; width:100%; height:auto;">
+    </div>
+    </div>
+    <h2>아동보호관련기관</h2>
+    <div class="section-box">
+      <ul class="agency-list">
+        <b>아동보호전문기관</b>
+          <br>지역별 설치된 아동보호전문기관에서 아동학대 피해자에 대한 상담, 의료지원, 심리치료 및 학대피해아동쉼터 연계 등을 제공합니다.
+          <br>아동보호전문기관<a href="tel:031-592-9818">(☎031-592-9818)</a>
+      </ul>
+      </div>
+    <div class="section-box">
+    <ul class="agency-list">
+      <b>남양주시 청소년쉼터</b>
+        <br>(<a href="tel:031-591-1319">☎031-591-1319</a> / <a href="tel:031-591-1318">031-591-1318</a>) 연중무휴
+      <br>남양주시 홍유릉로 248번길39 다남프라자 203호
+    </ul>
+    </div>
+    <div class="section-box">
+      <ul class="agency-list">
+        <b>남양주시 청소년상담복지센터</b>
+        <br><a href="https://www.nyj.go.kr/youth/nyj1388/134" target="_blank" rel="noopener noreferrer">https://www.nyj.go.kr/youth/nyj1388/134</a>
+        <br>심리검사, 개인·집단·전화·문자 상담 서비스, 부모 교육 등 프로그램 개발을 통해 청소년 문제 해결과 건강한 성장을 지원하는 기관입니다.
+        <br>(<a href="tel:031-590-8098">☎031-590-8098</a>)
+      </ul>
+      </div>
+    <div class="section-box">
+      <ul class="agency-list">
+        <b>학대 피해 아동 쉼터 (8개소) 입소 문의</b>
+          <br>남양주시청 아동보호팀 (<a href="tel:031-579-6700">☎031-579-6700</a>)
+      </ul>
+      </div>
+    <h2>피해자 보호명령</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      수사기관을 거치지 않고 직접 법원에 피해자보호명령을 신청하시면 가해자 격리, 연락 금지, 접근 금지 등 임시조치와 유사한 보호를 받으실 수 있습니다.
+    </ul>
+    <div style="margin: 16px 0;">
+      <img src="{% static 'images/protect.png' %}" alt="피해자 보호명령" style="max-width:480px; width:100%; height:auto;">
+    </div>
+    </div>
+    <h2>아동보호사건</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      <b>정의</b>
+      <br>형사 처벌과는 별도로 피해아동의 보호·회복·안전 확보를 위해 가정법원이 개입하는 제도 (형사처벌이 부과되지 않아 전과가 남지 않는 제도)</li>
+    </ul>
+    <ul class="agency-list">
+      <b>목적</b>
+      <br>보호처분을 통해 처벌의 목적이 아닌 환경의 조정과 가해자 성행 교정의 목적</li>
+    </ul>
+    <ul class="agency-list">
+      <b>처분</b>
+      <br>접근금지, 사회봉사·수강명령, 보호관찰처분, 감호위탁, 치료위탁 및 상담위탁 처분</li>
+    </ul>
+    </div>
+    <h2>아동학대처벌</h2>
+    <div class="section-box">
+    <ul class="agency-list">
+      5년 이하의 징역 또는 5천만원 이하의 벌금
+    </ul>
+    </div>
+    <div style="margin: 16px 0;">
+      <img src="{% static 'images/child_03.png' %}" alt="아동학대처벌" style="max-width:480px; width:100%; height:auto;">
+    </div>
+
+    <h2 class="restorative-title">회복적 대화모임</h2>
+    <div class="restorative-slider">
+      <button class="slider-btn prev"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+      <div class="slider-images">
+        <img src="{% static 'images/img_01.png' %}" alt="회복적 모임 1">
+        <img src="{% static 'images/img_02.png' %}" alt="회복적 모임 2">
+        <img src="{% static 'images/img_03.png' %}" alt="회복적 모임 3">
+        <img src="{% static 'images/img_04.png' %}" alt="회복적 모임 4">
+        <img src="{% static 'images/img_05.png' %}" alt="회복적 모임 5">
+        <img src="{% static 'images/img_06.png' %}" alt="회복적 모임 6">
+      </div>
+      <button class="slider-btn next"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/></svg></button>
+    </div>
+    <div class="section-box">
+    <ul class="agency-list">
+      아동학대(<a href="tel:031-579-8815">☎031-579-8815</a>)
+    </ul>
+    </div>
+    {% include 'footer.html' %}
+  </div>
+  <button id="scrollTopBtn" title="맨 위로">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M12 19V5M12 5L6 11M12 5l6 6" stroke="#3f6ea5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+  <script>
+    document.getElementById('violence-select').addEventListener('change', function() {
+      if(this.value) location.href = this.value;
+    });
+  </script>
+  <script src="script.js?v=1.1"></script>
+</body>
+</html> 
