@@ -11,14 +11,14 @@ import threading
 import time
 from functools import lru_cache
 
-# 간단한 RAG 시스템을 위한 기본 패키지들
+# 초경량 RAG 시스템 - 기본 라이브러리만 사용
 try:
     from openai import OpenAI
     OPENAI_AVAILABLE = True
 except ImportError:
     OPENAI_AVAILABLE = False
 
-# 간단한 텍스트 검색을 위한 기본 라이브러리
+# 기본 라이브러리만 사용
 import re
 from difflib import SequenceMatcher
 
@@ -64,18 +64,9 @@ class RAGSystem:
             self.knowledge_base = []
     
     def _cleanup_cache(self):
-        """캐시 정리 (10분마다 실행)"""
-        current_time = time.time()
-        if current_time - self._last_cache_cleanup > 600:  # 10분
-            with self._cache_lock:
-                # 1시간 이상 된 캐시 항목 제거
-                expired_keys = [
-                    key for key, (_, timestamp) in self._response_cache.items()
-                    if current_time - timestamp > 3600
-                ]
-                for key in expired_keys:
-                    del self._response_cache[key]
-                self._last_cache_cleanup = current_time
+        """초경량 캐시 정리 (간단한 LRU 방식)"""
+        # 캐시 크기 제한으로 자동 정리됨 (query 메서드에서 처리)
+        pass
 
     def add_documents(self, documents: List[Dict[str, Any]]):
         """문서를 지식베이스에 추가"""
@@ -90,41 +81,43 @@ class RAGSystem:
     def search_similar_documents(
         self, query: str, n_results: int = 5
     ) -> List[Dict[str, Any]]:
-        """유사한 문서 검색 (간단한 텍스트 매칭)"""
+        """초경량 문서 검색 (키워드 기반)"""
         try:
             if not self.knowledge_base:
                 logger.warning("Knowledge base is empty")
                 return []
             
-            # 간단한 텍스트 유사도 검색
+            # 초경량 키워드 매칭
             scored_docs = []
             query_lower = query.lower()
+            query_words = set(query_lower.split())
             
             for doc in self.knowledge_base:
                 content = doc.get("content", "").lower()
                 metadata = doc.get("metadata", {})
                 category = metadata.get("category", "").lower()
                 
-                # 키워드 매칭 점수 계산
+                # 간단한 점수 계산
                 score = 0
                 
-                # 카테고리 매칭
-                if any(keyword in category for keyword in query_lower.split()):
-                    score += 3
+                # 카테고리 직접 매칭 (높은 점수)
+                if any(word in category for word in query_words):
+                    score += 5
                 
-                # 내용 매칭
-                for keyword in query_lower.split():
-                    if keyword in content:
-                        score += content.count(keyword)
+                # 내용 키워드 매칭
+                for word in query_words:
+                    if word in content:
+                        score += 1
                 
-                if score > 0:
+                # 최소 점수 이상만 반환
+                if score >= 1:
                     scored_docs.append({
                         "content": doc.get("content", ""),
                         "metadata": metadata,
                         "score": score
                     })
             
-            # 점수순으로 정렬하고 상위 n_results개 반환
+            # 점수순 정렬 후 상위 결과 반환
             scored_docs.sort(key=lambda x: x["score"], reverse=True)
             return scored_docs[:n_results]
 
@@ -133,39 +126,27 @@ class RAGSystem:
             return []
 
     def generate_response(self, query: str, context_docs: List[Dict[str, Any]]) -> str:
-        """컨텍스트를 기반으로 응답 생성"""
+        """초경량 응답 생성"""
         try:
             # OpenAI 클라이언트가 없으면 fallback 응답 사용
             if not self.openai_client:
                 return self._get_fallback_response(query)
 
-            # 컨텍스트 문서들을 하나의 문자열로 결합
-            context = "\n\n".join([doc["content"] for doc in context_docs])
+            # 컨텍스트 문서들을 간단히 결합 (최대 3개만 사용)
+            context_docs = context_docs[:3]  # 메모리 절약
+            context = "\n\n".join([doc["content"][:500] for doc in context_docs])  # 길이 제한
 
-            # 프롬프트 생성
-            system_prompt = """당신은 남양주남부경찰서의 AI 어시스턴트입니다. 
-제공된 컨텍스트 정보를 바탕으로 정확하고 도움이 되는 답변을 제공해주세요.
+            # 간단한 프롬프트
+            system_prompt = "남양주남부경찰서 AI 어시스턴트입니다. 제공된 정보를 바탕으로 도움이 되는 답변을 해주세요."
 
-답변 시 다음 사항을 지켜주세요:
-1. 정확하고 신뢰할 수 있는 정보만 제공
-2. 경찰서 관련 업무에 도움이 되는 구체적인 안내
-3. 친근하고 이해하기 쉬운 언어 사용
-4. 필요시 관련 기관 연락처나 절차 안내
-5. 모르는 내용은 솔직히 말하고 적절한 기관을 안내
-
-컨텍스트 정보:
-{context}"""
-
-            user_prompt = f"질문: {query}\n\n위 컨텍스트 정보를 바탕으로 답변해주세요."
-
-            # OpenAI API 호출
+            # OpenAI API 호출 (최소 설정)
             response = self.openai_client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": system_prompt.format(context=context)},
-                    {"role": "user", "content": user_prompt}
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": f"질문: {query}\n\n참고정보: {context}"}
                 ],
-                max_tokens=1000,
+                max_tokens=500,  # 토큰 수 제한
                 temperature=0.7
             )
 
@@ -176,37 +157,35 @@ class RAGSystem:
             return self._get_fallback_response(query)
 
     def query(self, question: str) -> str:
-        """RAG 시스템을 통한 질의응답"""
+        """초경량 RAG 질의응답"""
         try:
-            # 캐시 정리
-            self._cleanup_cache()
-            
-            # 캐시에서 응답 확인
+            # 간단한 캐시 확인
             cache_key = question.lower().strip()
             with self._cache_lock:
                 if cache_key in self._response_cache:
                     response, _ = self._response_cache[cache_key]
-                    logger.info(f"Cache hit for query: {question}")
                     return response
             
-            # OpenAI API 키가 없거나 테스트 키인 경우 기본 응답
+            # OpenAI API 키가 없으면 기본 응답
             if not self.openai_api_key or self.openai_api_key == "test-key":
                 response = self._get_fallback_response(question)
             else:
-                # 1. 유사한 문서 검색
-                similar_docs = self.search_similar_documents(question, n_results=3)
-                logger.info(
-                    f"Found {len(similar_docs)} similar documents for query: {question}"
-                )
-
+                # 최소한의 문서 검색 (최대 2개)
+                similar_docs = self.search_similar_documents(question, n_results=2)
+                
                 if not similar_docs:
                     response = "죄송합니다. 관련 정보를 찾을 수 없습니다. 다른 질문을 해주시거나 경찰서에 직접 문의해주세요."
                 else:
-                    # 2. 컨텍스트를 기반으로 응답 생성
+                    # 간단한 응답 생성
                     response = self.generate_response(question, similar_docs)
             
-            # 응답을 캐시에 저장
+            # 간단한 캐시 저장 (최대 10개만 유지)
             with self._cache_lock:
+                if len(self._response_cache) >= 10:
+                    # 가장 오래된 항목 제거
+                    oldest_key = min(self._response_cache.keys(), 
+                                   key=lambda k: self._response_cache[k][1])
+                    del self._response_cache[oldest_key]
                 self._response_cache[cache_key] = (response, time.time())
             
             return response
