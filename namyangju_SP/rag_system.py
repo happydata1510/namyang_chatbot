@@ -54,6 +54,7 @@ class RAGSystem:
         # ChromaDB가 사용 가능한 경우에만 초기화
         if CHROMADB_AVAILABLE:
             try:
+                logger.info(f"Initializing ChromaDB with path: {self.chroma_persist_directory}")
                 self.chroma_client = chromadb.PersistentClient(
                     path=self.chroma_persist_directory,
                     settings=Settings(anonymized_telemetry=False),
@@ -65,15 +66,19 @@ class RAGSystem:
                 # 컬렉션 가져오기 또는 생성
                 try:
                     self.collection = self.chroma_client.get_collection(self.collection_name)
+                    logger.info(f"Found existing collection: {self.collection_name}")
                 except:
                     self.collection = self.chroma_client.create_collection(
                         name=self.collection_name,
                         metadata={"description": "경찰청 관련 지식 베이스"},
                     )
+                    logger.info(f"Created new collection: {self.collection_name}")
             except Exception as e:
-                logger.warning(f"ChromaDB initialization failed: {str(e)}")
+                logger.error(f"ChromaDB initialization failed: {str(e)}")
                 self.chroma_client = None
                 self.collection = None
+        else:
+            logger.warning("ChromaDB not available")
 
         # 임베딩 모델 초기화 (지연 로딩)
         self._embedding_model = None

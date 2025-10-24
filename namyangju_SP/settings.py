@@ -105,7 +105,7 @@ DATABASES = {
 # OpenAI API 설정
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# RAG 설정 (Railway에서는 비활성화)
+# RAG 설정
 CHROMA_PERSIST_DIRECTORY = os.getenv("CHROMA_PERSIST_DIRECTORY", "/tmp/chroma_db")
 EMBEDDING_MODEL = os.getenv(
     "EMBEDDING_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
