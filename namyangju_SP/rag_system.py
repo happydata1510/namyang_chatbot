@@ -51,8 +51,8 @@ class RAGSystem:
         self.chroma_client = None
         self.collection = None
         
-        # ChromaDB가 사용 가능하고 Vercel 환경이 아닌 경우에만 초기화
-        if CHROMADB_AVAILABLE and not os.getenv('VERCEL'):
+        # ChromaDB가 사용 가능한 경우에만 초기화
+        if CHROMADB_AVAILABLE:
             try:
                 self.chroma_client = chromadb.PersistentClient(
                     path=self.chroma_persist_directory,
