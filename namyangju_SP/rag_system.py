@@ -48,7 +48,10 @@ class RAGSystem:
                 self.openai_client = None
         else:
             self.openai_client = None
-            logger.warning("OpenAI client not available")
+            if not self.openai_api_key:
+                logger.warning("OpenAI API key not provided")
+            elif not OPENAI_AVAILABLE:
+                logger.warning("OpenAI package not available")
     
     def _load_knowledge_base(self):
         """지식베이스 데이터 로드"""

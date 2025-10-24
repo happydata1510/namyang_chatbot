@@ -30,19 +30,26 @@ try:
     execute_from_command_line(["manage.py", "collectstatic", "--noinput", "--clear"])
     print("Static files collected")
     
-    # 서버 시작
-    print("Starting Django server...")
-    port = os.environ.get("PORT", "8000")
-    print(f"Using port: {port}")
-    
-    # WSGI 애플리케이션으로 시작
-    application = get_wsgi_application()
-    
-    # 간단한 HTTP 서버로 시작
-    from wsgiref.simple_server import make_server
-    with make_server('0.0.0.0', int(port), application) as httpd:
-        print(f"Server running on port {port}")
-        httpd.serve_forever()
+       # 서버 시작
+       print("Starting Django server...")
+       port = os.environ.get("PORT", "8000")
+       print(f"Using port: {port}")
+
+       # WSGI 애플리케이션으로 시작
+       application = get_wsgi_application()
+
+       # Railway 환경에서는 Gunicorn 사용
+       if os.getenv('RAILWAY_ENVIRONMENT'):
+           print("Railway environment detected - using Gunicorn")
+           import gunicorn.app.wsgiapp as wsgi
+           sys.argv = ['gunicorn', '--bind', f'0.0.0.0:{port}', '--workers', '1', '--timeout', '120', 'namyangju_SP.wsgi:application']
+           wsgi.run()
+       else:
+           # 로컬에서는 간단한 HTTP 서버 사용
+           from wsgiref.simple_server import make_server
+           with make_server('0.0.0.0', int(port), application) as httpd:
+               print(f"Server running on port {port}")
+               httpd.serve_forever()
         
 except Exception as e:
     print(f"Error: {str(e)}")
