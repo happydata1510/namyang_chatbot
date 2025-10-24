@@ -29,28 +29,16 @@ pip install -r requirements.txt
 
 ### 2. 환경 변수 설정
 
-`.env` 파일을 생성하고 다음 내용을 추가하세요:
+`env.example` 파일을 참고하여 `.env` 파일을 생성하고 필요한 환경 변수를 설정하세요:
 
-```env
-# OpenAI API 설정
-OPENAI_API_KEY=your_openai_api_key_here
-
-# 데이터베이스 설정
-DB_NAME=postgres
-DB_USER=postgres
-DB_PASSWORD=site0607!!
-DB_HOST=192.168.0.99
-DB_PORT=5432
-
-# Django 설정
-SECRET_KEY=django-insecure-@+_c905(seh@$rp@^anvbdn20n%89*v(-kne(lob)w=0q0b8=p
-DEBUG=True
-ALLOWED_HOSTS=*
-
-# RAG 설정
-CHROMA_PERSIST_DIRECTORY=./chroma_db
-EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+```bash
+cp env.example .env
 ```
+
+`.env` 파일에서 다음 값들을 실제 값으로 변경하세요:
+- `SECRET_KEY`: Django 시크릿 키
+- `OPENAI_API_KEY`: OpenAI API 키
+- 기타 필요한 환경 변수들
 
 ### 3. 데이터베이스 마이그레이션
 
