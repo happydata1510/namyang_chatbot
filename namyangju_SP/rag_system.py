@@ -3,12 +3,6 @@ RAG (Retrieval-Augmented Generation) 시스템 구현
 """
 
 import os
-import chromadb
-from chromadb.config import Settings
-from sentence_transformers import SentenceTransformer
-from langchain_openai import ChatOpenAI
-from langchain.schema import HumanMessage, SystemMessage
-from langchain.prompts import ChatPromptTemplate
 import json
 from typing import List, Dict, Any
 from django.conf import settings
@@ -16,6 +10,28 @@ import logging
 import threading
 import time
 from functools import lru_cache
+
+# Vercel 환경에서는 무거운 패키지들을 조건부로 import
+try:
+    import chromadb
+    from chromadb.config import Settings
+    CHROMADB_AVAILABLE = True
+except ImportError:
+    CHROMADB_AVAILABLE = False
+
+try:
+    from sentence_transformers import SentenceTransformer
+    SENTENCE_TRANSFORMERS_AVAILABLE = True
+except ImportError:
+    SENTENCE_TRANSFORMERS_AVAILABLE = False
+
+try:
+    from langchain_openai import ChatOpenAI
+    from langchain.schema import HumanMessage, SystemMessage
+    from langchain.prompts import ChatPromptTemplate
+    LANGCHAIN_AVAILABLE = True
+except ImportError:
+    LANGCHAIN_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -31,12 +47,12 @@ class RAGSystem:
         self._cache_lock = threading.Lock()
         self._last_cache_cleanup = time.time()
 
-        # ChromaDB 클라이언트 초기화 (Vercel 환경에서는 임시로 비활성화)
+        # ChromaDB 클라이언트 초기화 (Vercel 환경에서는 비활성화)
         self.chroma_client = None
         self.collection = None
         
-        # Vercel 환경이 아닌 경우에만 ChromaDB 초기화
-        if not os.getenv('VERCEL'):
+        # ChromaDB가 사용 가능하고 Vercel 환경이 아닌 경우에만 초기화
+        if CHROMADB_AVAILABLE and not os.getenv('VERCEL'):
             try:
                 self.chroma_client = chromadb.PersistentClient(
                     path=self.chroma_persist_directory,
@@ -63,24 +79,33 @@ class RAGSystem:
         self._embedding_model = None
         self._model_lock = threading.Lock()
 
-        # OpenAI 모델 초기화 (API 키가 있을 때만)
-        if self.openai_api_key and self.openai_api_key != "test-key":
-            self.llm = ChatOpenAI(
-                openai_api_key=self.openai_api_key,
-                model_name="gpt-4o-mini",
-                temperature=0.7,
-                max_tokens=1000,
-            )
+        # OpenAI 모델 초기화 (API 키가 있고 LangChain이 사용 가능할 때만)
+        if (self.openai_api_key and self.openai_api_key != "test-key" and 
+            LANGCHAIN_AVAILABLE):
+            try:
+                self.llm = ChatOpenAI(
+                    openai_api_key=self.openai_api_key,
+                    model_name="gpt-4o-mini",
+                    temperature=0.7,
+                    max_tokens=1000,
+                )
+            except Exception as e:
+                logger.warning(f"OpenAI model initialization failed: {str(e)}")
+                self.llm = None
         else:
             self.llm = None
     
     @property
     def embedding_model(self):
         """지연 로딩으로 임베딩 모델 초기화"""
-        if self._embedding_model is None:
+        if self._embedding_model is None and SENTENCE_TRANSFORMERS_AVAILABLE:
             with self._model_lock:
                 if self._embedding_model is None:
-                    self._embedding_model = SentenceTransformer(self.embedding_model_name)
+                    try:
+                        self._embedding_model = SentenceTransformer(self.embedding_model_name)
+                    except Exception as e:
+                        logger.warning(f"Embedding model initialization failed: {str(e)}")
+                        return None
         return self._embedding_model
     
     def _cleanup_cache(self):
