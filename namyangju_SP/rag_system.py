@@ -51,14 +51,21 @@ class RAGSystem:
         self.chroma_client = None
         self.collection = None
         
-        # ChromaDB가 사용 가능하고 Railway 환경이 아닌 경우에만 초기화
-        if CHROMADB_AVAILABLE and not os.getenv('RAILWAY_ENVIRONMENT'):
+        # ChromaDB가 사용 가능한 경우에만 초기화
+        if CHROMADB_AVAILABLE:
             try:
                 logger.info(f"Initializing ChromaDB with path: {self.chroma_persist_directory}")
-                self.chroma_client = chromadb.PersistentClient(
-                    path=self.chroma_persist_directory,
-                    settings=Settings(anonymized_telemetry=False),
-                )
+                # Railway 환경에서는 메모리 기반 클라이언트 사용
+                if os.getenv('RAILWAY_ENVIRONMENT'):
+                    logger.info("Using in-memory ChromaDB for Railway")
+                    self.chroma_client = chromadb.Client(
+                        settings=Settings(anonymized_telemetry=False)
+                    )
+                else:
+                    self.chroma_client = chromadb.PersistentClient(
+                        path=self.chroma_persist_directory,
+                        settings=Settings(anonymized_telemetry=False),
+                    )
                 
                 # 컬렉션 이름
                 self.collection_name = "police_knowledge"
@@ -78,10 +85,7 @@ class RAGSystem:
                 self.chroma_client = None
                 self.collection = None
         else:
-            if os.getenv('RAILWAY_ENVIRONMENT'):
-                logger.info("Railway environment detected - ChromaDB disabled for faster deployment")
-            else:
-                logger.warning("ChromaDB not available")
+            logger.warning("ChromaDB not available")
 
         # 임베딩 모델 초기화 (지연 로딩)
         self._embedding_model = None
