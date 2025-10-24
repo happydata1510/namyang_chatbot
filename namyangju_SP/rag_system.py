@@ -11,27 +11,16 @@ import threading
 import time
 from functools import lru_cache
 
-# Vercel 환경에서는 무거운 패키지들을 조건부로 import
+# 간단한 RAG 시스템을 위한 기본 패키지들
 try:
-    import chromadb
-    from chromadb.config import Settings
-    CHROMADB_AVAILABLE = True
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
 except ImportError:
-    CHROMADB_AVAILABLE = False
+    OPENAI_AVAILABLE = False
 
-try:
-    from sentence_transformers import SentenceTransformer
-    SENTENCE_TRANSFORMERS_AVAILABLE = True
-except ImportError:
-    SENTENCE_TRANSFORMERS_AVAILABLE = False
-
-try:
-    from langchain_openai import ChatOpenAI
-    from langchain.schema import HumanMessage, SystemMessage
-    from langchain.prompts import ChatPromptTemplate
-    LANGCHAIN_AVAILABLE = True
-except ImportError:
-    LANGCHAIN_AVAILABLE = False
+# 간단한 텍스트 검색을 위한 기본 라이브러리
+import re
+from difflib import SequenceMatcher
 
 logger = logging.getLogger(__name__)
 
@@ -39,86 +28,37 @@ logger = logging.getLogger(__name__)
 class RAGSystem:
     def __init__(self):
         self.openai_api_key = settings.OPENAI_API_KEY
-        self.embedding_model_name = settings.EMBEDDING_MODEL
-        self.chroma_persist_directory = settings.CHROMA_PERSIST_DIRECTORY
         
         # 캐시 초기화
         self._response_cache = {}
         self._cache_lock = threading.Lock()
         self._last_cache_cleanup = time.time()
 
-        # ChromaDB 클라이언트 초기화 (Vercel 환경에서는 비활성화)
-        self.chroma_client = None
-        self.collection = None
-        
-        # ChromaDB가 사용 가능한 경우에만 초기화
-        if CHROMADB_AVAILABLE:
-            try:
-                logger.info(f"Initializing ChromaDB with path: {self.chroma_persist_directory}")
-                # Railway 환경에서는 메모리 기반 클라이언트 사용
-                if os.getenv('RAILWAY_ENVIRONMENT'):
-                    logger.info("Using in-memory ChromaDB for Railway")
-                    self.chroma_client = chromadb.Client(
-                        settings=Settings(anonymized_telemetry=False)
-                    )
-                else:
-                    self.chroma_client = chromadb.PersistentClient(
-                        path=self.chroma_persist_directory,
-                        settings=Settings(anonymized_telemetry=False),
-                    )
-                
-                # 컬렉션 이름
-                self.collection_name = "police_knowledge"
-                
-                # 컬렉션 가져오기 또는 생성
-                try:
-                    self.collection = self.chroma_client.get_collection(self.collection_name)
-                    logger.info(f"Found existing collection: {self.collection_name}")
-                except:
-                    self.collection = self.chroma_client.create_collection(
-                        name=self.collection_name,
-                        metadata={"description": "경찰청 관련 지식 베이스"},
-                    )
-                    logger.info(f"Created new collection: {self.collection_name}")
-            except Exception as e:
-                logger.error(f"ChromaDB initialization failed: {str(e)}")
-                self.chroma_client = None
-                self.collection = None
-        else:
-            logger.warning("ChromaDB not available")
+        # 지식베이스 데이터 로드
+        self.knowledge_base = []
+        self._load_knowledge_base()
 
-        # 임베딩 모델 초기화 (지연 로딩)
-        self._embedding_model = None
-        self._model_lock = threading.Lock()
-
-        # OpenAI 모델 초기화 (API 키가 있고 LangChain이 사용 가능할 때만)
-        if (self.openai_api_key and self.openai_api_key != "test-key" and 
-            LANGCHAIN_AVAILABLE):
+        # OpenAI 클라이언트 초기화
+        if self.openai_api_key and self.openai_api_key != "test-key" and OPENAI_AVAILABLE:
             try:
-                self.llm = ChatOpenAI(
-                    openai_api_key=self.openai_api_key,
-                    model_name="gpt-4o-mini",
-                    temperature=0.7,
-                    max_tokens=1000,
-                )
+                self.openai_client = OpenAI(api_key=self.openai_api_key)
+                logger.info("OpenAI client initialized successfully")
             except Exception as e:
-                logger.warning(f"OpenAI model initialization failed: {str(e)}")
-                self.llm = None
+                logger.warning(f"OpenAI client initialization failed: {str(e)}")
+                self.openai_client = None
         else:
-            self.llm = None
+            self.openai_client = None
+            logger.warning("OpenAI client not available")
     
-    @property
-    def embedding_model(self):
-        """지연 로딩으로 임베딩 모델 초기화"""
-        if self._embedding_model is None and SENTENCE_TRANSFORMERS_AVAILABLE:
-            with self._model_lock:
-                if self._embedding_model is None:
-                    try:
-                        self._embedding_model = SentenceTransformer(self.embedding_model_name)
-                    except Exception as e:
-                        logger.warning(f"Embedding model initialization failed: {str(e)}")
-                        return None
-        return self._embedding_model
+    def _load_knowledge_base(self):
+        """지식베이스 데이터 로드"""
+        try:
+            from namyangju_SP.knowledge_base import get_police_knowledge_base
+            self.knowledge_base = get_police_knowledge_base()
+            logger.info(f"Loaded {len(self.knowledge_base)} knowledge base documents")
+        except Exception as e:
+            logger.error(f"Failed to load knowledge base: {str(e)}")
+            self.knowledge_base = []
     
     def _cleanup_cache(self):
         """캐시 정리 (10분마다 실행)"""
@@ -135,28 +75,11 @@ class RAGSystem:
                 self._last_cache_cleanup = current_time
 
     def add_documents(self, documents: List[Dict[str, Any]]):
-        """문서를 벡터 데이터베이스에 추가"""
+        """문서를 지식베이스에 추가"""
         try:
-            # ChromaDB가 초기화되지 않은 경우 스킵
-            if not self.collection:
-                logger.warning("ChromaDB not available, skipping document addition")
-                return False
-                
-            texts = [doc["content"] for doc in documents]
-            metadatas = [doc.get("metadata", {}) for doc in documents]
-            ids = [doc.get("id", f"doc_{i}") for i, doc in enumerate(documents)]
-
-            # 임베딩 생성
-            embeddings = self.embedding_model.encode(texts).tolist()
-
-            # ChromaDB에 추가
-            self.collection.add(
-                embeddings=embeddings, documents=texts, metadatas=metadatas, ids=ids
-            )
-
+            self.knowledge_base.extend(documents)
             logger.info(f"Added {len(documents)} documents to knowledge base")
             return True
-
         except Exception as e:
             logger.error(f"Error adding documents: {str(e)}")
             return False
@@ -164,35 +87,43 @@ class RAGSystem:
     def search_similar_documents(
         self, query: str, n_results: int = 5
     ) -> List[Dict[str, Any]]:
-        """유사한 문서 검색"""
+        """유사한 문서 검색 (간단한 텍스트 매칭)"""
         try:
-            # ChromaDB가 초기화되지 않은 경우 빈 결과 반환
-            if not self.collection:
-                logger.warning("ChromaDB not available, returning empty search results")
+            if not self.knowledge_base:
+                logger.warning("Knowledge base is empty")
                 return []
+            
+            # 간단한 텍스트 유사도 검색
+            scored_docs = []
+            query_lower = query.lower()
+            
+            for doc in self.knowledge_base:
+                content = doc.get("content", "").lower()
+                metadata = doc.get("metadata", {})
+                category = metadata.get("category", "").lower()
                 
-            # 쿼리 임베딩 생성
-            query_embedding = self.embedding_model.encode([query]).tolist()[0]
-
-            # 유사 문서 검색
-            results = self.collection.query(
-                query_embeddings=[query_embedding],
-                n_results=n_results,
-                include=["documents", "metadatas", "distances"],
-            )
-
-            # 결과 포맷팅
-            similar_docs = []
-            for i in range(len(results["documents"][0])):
-                similar_docs.append(
-                    {
-                        "content": results["documents"][0][i],
-                        "metadata": results["metadatas"][0][i],
-                        "distance": results["distances"][0][i],
-                    }
-                )
-
-            return similar_docs
+                # 키워드 매칭 점수 계산
+                score = 0
+                
+                # 카테고리 매칭
+                if any(keyword in category for keyword in query_lower.split()):
+                    score += 3
+                
+                # 내용 매칭
+                for keyword in query_lower.split():
+                    if keyword in content:
+                        score += content.count(keyword)
+                
+                if score > 0:
+                    scored_docs.append({
+                        "content": doc.get("content", ""),
+                        "metadata": metadata,
+                        "score": score
+                    })
+            
+            # 점수순으로 정렬하고 상위 n_results개 반환
+            scored_docs.sort(key=lambda x: x["score"], reverse=True)
+            return scored_docs[:n_results]
 
         except Exception as e:
             logger.error(f"Error searching documents: {str(e)}")
@@ -201,43 +132,41 @@ class RAGSystem:
     def generate_response(self, query: str, context_docs: List[Dict[str, Any]]) -> str:
         """컨텍스트를 기반으로 응답 생성"""
         try:
-            # LLM이 없으면 fallback 응답 사용
-            if not self.llm:
+            # OpenAI 클라이언트가 없으면 fallback 응답 사용
+            if not self.openai_client:
                 return self._get_fallback_response(query)
 
             # 컨텍스트 문서들을 하나의 문자열로 결합
             context = "\n\n".join([doc["content"] for doc in context_docs])
 
-            # 프롬프트 템플릿 생성
-            prompt_template = ChatPromptTemplate.from_messages(
-                [
-                    SystemMessage(
-                        content="""당신은 남양주남부경찰서의 AI 어시스턴트입니다. 
-                제공된 컨텍스트 정보를 바탕으로 정확하고 도움이 되는 답변을 제공해주세요.
-                
-                답변 시 다음 사항을 지켜주세요:
-                1. 정확하고 신뢰할 수 있는 정보만 제공
-                2. 경찰서 관련 업무에 도움이 되는 구체적인 안내
-                3. 친근하고 이해하기 쉬운 언어 사용
-                4. 필요시 관련 기관 연락처나 절차 안내
-                5. 모르는 내용은 솔직히 말하고 적절한 기관을 안내
-                
-                컨텍스트 정보:
-                {context}"""
-                    ),
-                    HumanMessage(content="{query}"),
-                ]
+            # 프롬프트 생성
+            system_prompt = """당신은 남양주남부경찰서의 AI 어시스턴트입니다. 
+제공된 컨텍스트 정보를 바탕으로 정확하고 도움이 되는 답변을 제공해주세요.
+
+답변 시 다음 사항을 지켜주세요:
+1. 정확하고 신뢰할 수 있는 정보만 제공
+2. 경찰서 관련 업무에 도움이 되는 구체적인 안내
+3. 친근하고 이해하기 쉬운 언어 사용
+4. 필요시 관련 기관 연락처나 절차 안내
+5. 모르는 내용은 솔직히 말하고 적절한 기관을 안내
+
+컨텍스트 정보:
+{context}"""
+
+            user_prompt = f"질문: {query}\n\n위 컨텍스트 정보를 바탕으로 답변해주세요."
+
+            # OpenAI API 호출
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": system_prompt.format(context=context)},
+                    {"role": "user", "content": user_prompt}
+                ],
+                max_tokens=1000,
+                temperature=0.7
             )
 
-            # 프롬프트 포맷팅
-            formatted_prompt = prompt_template.format_messages(
-                context=context, query=query
-            )
-
-            # LLM을 통한 응답 생성
-            response = self.llm.invoke(formatted_prompt)
-
-            return response.content
+            return response.choices[0].message.content
 
         except Exception as e:
             logger.error(f"Error generating response: {str(e)}")

@@ -3,11 +3,5 @@ python-dotenv==1.0.1
 whitenoise==6.6.0
 requests==2.32.3
 openai>=1.54.0
-chromadb==0.4.24
-sentence-transformers==2.7.0
-langchain==0.3.7
-langchain-openai==0.2.8
-langchain-community==0.3.7
 numpy==1.26.4
-pandas==2.2.2
 tiktoken==0.7.0
