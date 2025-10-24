@@ -159,6 +159,11 @@ MEDIA_ROOT = BASE_DIR / "media"
 # WhiteNoise configuration
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+# Railway specific settings
+if os.getenv("RAILWAY_ENVIRONMENT"):
+    # Railway 환경에서 정적 파일 처리
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
