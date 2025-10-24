@@ -14,7 +14,11 @@ python manage.py migrate --noinput
 
 # 정적 파일 수집
 echo "Collecting static files..."
-python manage.py collectstatic --noinput
+python manage.py collectstatic --noinput --clear
+
+# Django 서버 시작 전에 간단한 테스트
+echo "Testing Django configuration..."
+python -c "import django; django.setup(); from django.conf import settings; print('Django settings loaded successfully')"
 
 # Django 개발 서버로 시작 (디버깅용)
 echo "Starting Django development server..."

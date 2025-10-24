@@ -447,5 +447,10 @@ def get_rag_system():
     """RAG 시스템 인스턴스 반환 (싱글톤 패턴)"""
     global rag_system
     if rag_system is None:
-        rag_system = RAGSystem()
+        try:
+            rag_system = RAGSystem()
+        except Exception as e:
+            logger.error(f"Failed to initialize RAG system: {str(e)}")
+            # RAG 시스템 초기화 실패 시 None 반환
+            rag_system = None
     return rag_system
