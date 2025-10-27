@@ -81,13 +81,23 @@ WSGI_APPLICATION = "namyangju_SP.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# Railway 환경에서는 PostgreSQL 사용, 로컬에서는 SQLite 사용
-if os.getenv("RAILWAY_ENVIRONMENT") or os.getenv("DATABASE_URL"):
-    # Railway PostgreSQL 설정
+# DATABASE_URL이 있으면 PostgreSQL 사용, 없으면 SQLite 사용
+database_url = os.getenv("DATABASE_URL")
+
+if database_url:
+    # PostgreSQL 설정 (Railway 또는 외부 데이터베이스)
     import dj_database_url
     DATABASES = {
-        "default": dj_database_url.config(default=os.getenv("DATABASE_URL"))
+        "default": dj_database_url.config(default=database_url)
     }
+    # DATABASE 설정이 비어있는 경우 SQLite fallback
+    if not DATABASES.get("default", {}).get("ENGINE"):
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": BASE_DIR / "db.sqlite3",
+            }
+        }
 else:
     # 로컬 개발 환경 (SQLite)
     DATABASES = {
