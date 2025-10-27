@@ -14,6 +14,7 @@ from functools import lru_cache
 # 초경량 RAG 시스템 - 기본 라이브러리만 사용
 try:
     from openai import OpenAI
+
     OPENAI_AVAILABLE = True
 except ImportError:
     OPENAI_AVAILABLE = False
@@ -28,7 +29,7 @@ logger = logging.getLogger(__name__)
 class RAGSystem:
     def __init__(self):
         self.openai_api_key = settings.OPENAI_API_KEY
-        
+
         # 캐시 초기화
         self._response_cache = {}
         self._cache_lock = threading.Lock()
@@ -39,7 +40,11 @@ class RAGSystem:
         self._load_knowledge_base()
 
         # OpenAI 클라이언트 초기화
-        if self.openai_api_key and self.openai_api_key != "test-key" and OPENAI_AVAILABLE:
+        if (
+            self.openai_api_key
+            and self.openai_api_key != "test-key"
+            and OPENAI_AVAILABLE
+        ):
             try:
                 self.openai_client = OpenAI(api_key=self.openai_api_key)
                 logger.info("OpenAI client initialized successfully")
@@ -52,17 +57,18 @@ class RAGSystem:
                 logger.warning("OpenAI API key not provided")
             elif not OPENAI_AVAILABLE:
                 logger.warning("OpenAI package not available")
-    
+
     def _load_knowledge_base(self):
         """지식베이스 데이터 로드"""
         try:
             from namyangju_SP.knowledge_base import get_police_knowledge_base
+
             self.knowledge_base = get_police_knowledge_base()
             logger.info(f"Loaded {len(self.knowledge_base)} knowledge base documents")
         except Exception as e:
             logger.error(f"Failed to load knowledge base: {str(e)}")
             self.knowledge_base = []
-    
+
     def _cleanup_cache(self):
         """초경량 캐시 정리 (간단한 LRU 방식)"""
         # 캐시 크기 제한으로 자동 정리됨 (query 메서드에서 처리)
@@ -86,37 +92,53 @@ class RAGSystem:
             if not self.knowledge_base:
                 logger.warning("Knowledge base is empty")
                 return []
-            
+
             # 초경량 키워드 매칭
             scored_docs = []
             query_lower = query.lower()
             query_words = set(query_lower.split())
-            
+
             for doc in self.knowledge_base:
                 content = doc.get("content", "").lower()
                 metadata = doc.get("metadata", {})
                 category = metadata.get("category", "").lower()
-                
+
                 # 간단한 점수 계산
                 score = 0
-                
+
                 # 카테고리 직접 매칭 (높은 점수)
-                if any(word in category for word in query_words):
-                    score += 5
-                
+                # 단어가 카테고리에 포함되어 있는지 확인
+                for word in query_words:
+                    if word in category:
+                        score += 5
+                    # 단어의 일부가 카테고리에 있는지도 확인 (예: "응급상황" in "응급상황인데")
+                    elif len(word) >= 2:
+                        for cat_word in category.split():
+                            if word in cat_word or cat_word in word:
+                                score += 5
+
                 # 내용 키워드 매칭
                 for word in query_words:
                     if word in content:
                         score += 1
-                
+                    # 단어의 일부가 내용에 있는지도 확인
+                    elif len(word) >= 3:
+                        # 긴 단어의 서브스트링 찾기
+                        for i in range(len(word) - 2):
+                            substring = word[i:i+3]
+                            if substring in content:
+                                score += 0.5
+
                 # 최소 점수 이상만 반환
                 if score >= 1:
-                    scored_docs.append({
-                        "content": doc.get("content", ""),
-                        "metadata": metadata,
-                        "score": score
-                    })
-            
+                    scored_docs.append(
+                        {
+                            "content": doc.get("content", ""),
+                            "metadata": metadata,
+                            "score": score,
+                        }
+                    )
+
             # 점수순 정렬 후 상위 결과 반환
             scored_docs.sort(key=lambda x: x["score"], reverse=True)
             return scored_docs[:n_results]
@@ -134,7 +156,9 @@ class RAGSystem:
 
             # 컨텍스트 문서들을 간단히 결합 (최대 3개만 사용)
             context_docs = context_docs[:3]  # 메모리 절약
-            context = "\n\n".join([doc["content"][:500] for doc in context_docs])  # 길이 제한
+            context = "\n\n".join(
+                [doc["content"][:500] for doc in context_docs]
+            )  # 길이 제한
 
             # 간단한 프롬프트
             system_prompt = "남양주남부경찰서 AI 어시스턴트입니다. 제공된 정보를 바탕으로 도움이 되는 답변을 해주세요."
@@ -144,10 +168,13 @@ class RAGSystem:
                 model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"질문: {query}\n\n참고정보: {context}"}
+                    {
+                        "role": "user",
+                        "content": f"질문: {query}\n\n참고정보: {context}",
+                    },
                 ],
                 max_tokens=500,  # 토큰 수 제한
-                temperature=0.7
+                temperature=0.7,
             )
 
             return response.choices[0].message.content
@@ -165,13 +192,17 @@ class RAGSystem:
                 if cache_key in self._response_cache:
                     response, _ = self._response_cache[cache_key]
                     return response
-            
+
             # 먼저 지식베이스에서 관련 문서 검색
             similar_docs = self.search_similar_documents(question, n_results=2)
-            
+
             # OpenAI API 키가 있고 검색 결과도 있으면 GPT로 응답 생성
-            if (self.openai_api_key and self.openai_api_key != "test-key" and 
-                similar_docs and self.openai_client):
+            if (
+                self.openai_api_key
+                and self.openai_api_key != "test-key"
+                and similar_docs
+                and self.openai_client
+            ):
                 try:
                     response = self.generate_response(question, similar_docs)
                 except Exception as e:
@@ -181,16 +212,18 @@ class RAGSystem:
             else:
                 # OpenAI API 키가 없거나 검색 결과가 없으면 fallback 응답 사용
                 response = self._get_fallback_response(question)
-            
+
             # 간단한 캐시 저장 (최대 10개만 유지)
             with self._cache_lock:
                 if len(self._response_cache) >= 10:
                     # 가장 오래된 항목 제거
-                    oldest_key = min(self._response_cache.keys(), 
-                                   key=lambda k: self._response_cache[k][1])
+                    oldest_key = min(
+                        self._response_cache.keys(),
+                        key=lambda k: self._response_cache[k][1],
+                    )
                     del self._response_cache[oldest_key]
                 self._response_cache[cache_key] = (response, time.time())
-            
+
             return response
 
         except Exception as e:
@@ -325,6 +358,65 @@ class RAGSystem:
 혹시 잃어버린 물건이 무엇인지, 어디서 잃어버리셨는지 더 자세히 말씀해주시면 찾는데 도움이 될 것 같아요.
 
 **📞 남양주남부경찰서: 031-123-4567**"""
+
+        elif "응급" in question_lower or "재난" in question_lower or "화재" in question_lower:
+            return """🚨 응급상황 신고 및 대응 안내
+
+## 📞 즉시 신고
+
+**📞 112** - 경찰 신고 및 출동 요청  
+**📞 119** - 화재, 응급의료, 구조 요청
+
+---
+
+## ⚡ 주요 상황별 대응
+
+### 🔥 화재
+- 즉시 119 신고
+- 대피 우선, 소화기 사용
+- 연기 주의 (낮은 자세로 이동)
+
+### 🏗️ 붕괴사고
+- 112, 119 신고
+- 안전한 장소로 대피
+- 출입 통제 협조
+
+### 🌊 자연재해
+- 112 신고
+- 고지대로 대피
+- 전기, 가스 차단
+
+---
+
+## 🆘 대응절차
+
+1. **신고접수** → 112 또는 119
+2. **현장출동** → 출동 시간: 5-10분
+3. **상황파악** → 신고자와 상세 내용 확인
+4. **대응조치** → 즉시 조치 및 피해자 구호
+
+---
+
+## 🏥 피해자 구호
+
+- 응급처치 제공
+- 대피지도 및 안전 확보
+- 피해자 보호 및 안심
+
+---
+
+## 🚦 현장관리
+
+- 교통통제
+- 출입통제
+- 안전 확보
+
+---
+
+지금 구체적으로 어떤 상황인지 알려주시면 더 정확한 도움을 드릴 수 있습니다.
+
+**📞 남양주남부경찰서: 031-123-4567**  
+*24시간 대응체계 운영*"""
 
         else:
             return """👋 안녕하세요! 남양주남부경찰서 AI 챗봇입니다.
