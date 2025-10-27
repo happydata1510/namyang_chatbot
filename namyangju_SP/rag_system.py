@@ -125,7 +125,7 @@ class RAGSystem:
                     elif len(word) >= 3:
                         # 긴 단어의 서브스트링 찾기
                         for i in range(len(word) - 2):
-                            substring = word[i:i+3]
+                            substring = word[i : i + 3]
                             if substring in content:
                                 score += 0.5
 
@@ -359,7 +359,11 @@ class RAGSystem:
 
 **📞 남양주남부경찰서: 031-123-4567**"""
 
-        elif "응급" in question_lower or "재난" in question_lower or "화재" in question_lower:
+        elif (
+            "응급" in question_lower
+            or "재난" in question_lower
+            or "화재" in question_lower
+        ):
             return """🚨 응급상황 신고 및 대응 안내
 
 ## 📞 즉시 신고
