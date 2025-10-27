@@ -166,18 +166,21 @@ class RAGSystem:
                     response, _ = self._response_cache[cache_key]
                     return response
             
-            # OpenAI API 키가 없으면 기본 응답
-            if not self.openai_api_key or self.openai_api_key == "test-key":
-                response = self._get_fallback_response(question)
-            else:
-                # 최소한의 문서 검색 (최대 2개)
-                similar_docs = self.search_similar_documents(question, n_results=2)
-                
-                if not similar_docs:
-                    response = "죄송합니다. 관련 정보를 찾을 수 없습니다. 다른 질문을 해주시거나 경찰서에 직접 문의해주세요."
-                else:
-                    # 간단한 응답 생성
+            # 먼저 지식베이스에서 관련 문서 검색
+            similar_docs = self.search_similar_documents(question, n_results=2)
+            
+            # OpenAI API 키가 있고 검색 결과도 있으면 GPT로 응답 생성
+            if (self.openai_api_key and self.openai_api_key != "test-key" and 
+                similar_docs and self.openai_client):
+                try:
                     response = self.generate_response(question, similar_docs)
+                except Exception as e:
+                    logger.error(f"Error generating response with GPT: {str(e)}")
+                    # GPT 실패 시 fallback 사용
+                    response = self._get_fallback_response(question)
+            else:
+                # OpenAI API 키가 없거나 검색 결과가 없으면 fallback 응답 사용
+                response = self._get_fallback_response(question)
             
             # 간단한 캐시 저장 (최대 10개만 유지)
             with self._cache_lock:
