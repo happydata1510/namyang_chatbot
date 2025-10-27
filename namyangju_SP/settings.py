@@ -81,26 +81,21 @@ WSGI_APPLICATION = "namyangju_SP.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# Railway 환경에서는 PostgreSQL 사용, 로컬에서는 SQLite 사용
+if os.getenv("RAILWAY_ENVIRONMENT") or os.getenv("DATABASE_URL"):
+    # Railway PostgreSQL 설정
+    import dj_database_url
+    DATABASES = {
+        "default": dj_database_url.config(default=os.getenv("DATABASE_URL"))
     }
-}
-
-# PostgreSQL 설정 (프로덕션용)
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "OPTIONS": {"options": "-c search_path=namyangju_sp"},
-#         "NAME": os.getenv("DB_NAME", "postgres"),
-#         "USER": os.getenv("DB_USER", "postgres"),
-#         "PASSWORD": os.getenv("DB_PASSWORD", "site0607!!"),
-#         "HOST": os.getenv("DB_HOST", "192.168.0.99"),
-#         "PORT": os.getenv("DB_PORT", "5432"),
-#     }
-# }
+else:
+    # 로컬 개발 환경 (SQLite)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # OpenAI API 설정
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
