@@ -45,6 +45,9 @@ class RAGSystem:
 
         # 인덱스 구축
         self._build_index()
+        
+        # 세션 관리 (사용자별 대화 컨텍스트)
+        self.sessions = {}
 
         # OpenAI 클라이언트 초기화
         if (
@@ -189,13 +192,13 @@ class RAGSystem:
 
             # 질의 토큰 추출
             query_tokens = self._extract_tokens(query.lower())
-            
+
             # 동의어 확장
             expanded_tokens = self._expand_with_synonyms(query_tokens)
-            
+
             # 토큰 기반 검색
             doc_scores = {}
-            
+
             # 직접 매칭 (높은 점수)
             for token in query_tokens:
                 if token in self.index:
@@ -203,7 +206,7 @@ class RAGSystem:
                         if doc_idx not in doc_scores:
                             doc_scores[doc_idx] = 0
                         doc_scores[doc_idx] += 10  # 직접 매칭 높은 점수
-            
+
             # 동의어 매칭 (중간 점수)
             for token in expanded_tokens:
                 if token in self.index:
@@ -211,7 +214,7 @@ class RAGSystem:
                         if doc_idx not in doc_scores:
                             doc_scores[doc_idx] = 0
                         doc_scores[doc_idx] += 5  # 동의어 매칭 중간 점수
-            
+
             # 카테고리 및 메타데이터 보너스
             for doc_idx in doc_scores:
                 doc = self.knowledge_base[doc_idx]
@@ -219,63 +222,65 @@ class RAGSystem:
                 metadata = doc.get("metadata", {})
                 category = metadata.get("category", "").lower()
                 question = metadata.get("question", "").lower()
-                
+
                 # 카테고리 매칭 보너스
                 for token in query_tokens:
                     if token in category:
                         doc_scores[doc_idx] += 8
-                
+
                 # 질문 매칭 보너스
                 if question:
                     for token in query_tokens:
                         if token in question:
                             doc_scores[doc_idx] += 10
-                
+
                 # TF 가중치 (토큰 빈도)
                 for token in query_tokens:
                     count = content.count(token)
                     if count > 0:
                         doc_scores[doc_idx] += min(count, 5)  # 최대 5점
-            
+
             # 점수별 정렬
             scored_docs = []
             for doc_idx, score in doc_scores.items():
                 doc = self.knowledge_base[doc_idx]
-                scored_docs.append({
-                    "content": doc.get("content", ""),
-                    "metadata": doc.get("metadata", {}),
-                    "score": score,
-                })
-            
+                scored_docs.append(
+                    {
+                        "content": doc.get("content", ""),
+                        "metadata": doc.get("metadata", {}),
+                        "score": score,
+                    }
+                )
+
             # 점수순 정렬 후 상위 결과 반환
             scored_docs.sort(key=lambda x: x["score"], reverse=True)
-            
+
             # 최소 점수 이상만 반환 (개선: 임계값 낮춤)
             results = [doc for doc in scored_docs if doc["score"] >= 5]
-            
+
             return results[:n_results]
 
         except Exception as e:
             logger.error(f"Error searching documents: {str(e)}")
             return []
-    
+
     def _expand_with_synonyms(self, tokens: Set[str]) -> Set[str]:
         """동의어로 토큰 확장"""
         expanded = set(tokens)
-        
+
         for token in tokens:
             # 동의어 사전에서 찾기
             for key, synonyms in self.synonyms.items():
                 if token in key or key in token:
                     expanded.update(synonyms)
-            
+
             # 역방향 검색 (synonym list에서 token 찾기)
             for key, synonyms in self.synonyms.items():
                 for synonym in synonyms:
                     if token in synonym or synonym in token:
                         expanded.add(key)
                         expanded.update([s for s in synonyms if s != synonym])
-        
+
         return expanded
 
     def generate_response(self, query: str, context_docs: List[Dict[str, Any]]) -> str:
@@ -314,52 +319,231 @@ class RAGSystem:
             logger.error(f"Error generating response: {str(e)}")
             return self._get_fallback_response(query)
 
-    def query(self, question: str) -> str:
-        """초경량 RAG 질의응답"""
+    def query(self, question: str, session_id: str = "default") -> str:
+        """3단계 상담 기반 RAG 질의응답"""
         try:
-            # 간단한 캐시 확인
-            cache_key = question.lower().strip()
-            with self._cache_lock:
-                if cache_key in self._response_cache:
-                    response, _ = self._response_cache[cache_key]
-                    return response
-
+            # 세션 관리
+            if session_id not in self.sessions:
+                self.sessions[session_id] = {
+                    "phase": 1,  # 1: 문제 파악, 2: 상담, 3: 해결책
+                    "problem_type": None,
+                    "history": []
+                }
+            
+            session = self.sessions[session_id]
+            
             # 먼저 지식베이스에서 관련 문서 검색
             similar_docs = self.search_similar_documents(question, n_results=2)
-
-            # OpenAI API 키가 있고 검색 결과도 있으면 GPT로 응답 생성
-            if (
-                self.openai_api_key
-                and self.openai_api_key != "test-key"
-                and similar_docs
-                and self.openai_client
-            ):
-                try:
-                    response = self.generate_response(question, similar_docs)
-                except Exception as e:
-                    logger.error(f"Error generating response with GPT: {str(e)}")
-                    # GPT 실패 시 fallback 사용
-                    response = self._get_fallback_response(question)
-            else:
-                # OpenAI API 키가 없거나 검색 결과가 없으면 fallback 응답 사용
-                response = self._get_fallback_response(question)
-
-            # 간단한 캐시 저장 (최대 10개만 유지)
-            with self._cache_lock:
-                if len(self._response_cache) >= 10:
-                    # 가장 오래된 항목 제거
-                    oldest_key = min(
-                        self._response_cache.keys(),
-                        key=lambda k: self._response_cache[k][1],
-                    )
-                    del self._response_cache[oldest_key]
-                self._response_cache[cache_key] = (response, time.time())
-
+            
+            # Phase별 응답 생성
+            if session["phase"] == 1:
+                response = self._generate_phase1_response(question, similar_docs, session)
+            elif session["phase"] == 2:
+                response = self._generate_phase2_response(question, similar_docs, session)
+            else:  # phase == 3
+                response = self._generate_phase3_response(question, similar_docs, session)
+            
+            # 대화 히스토리 저장
+            session["history"].append({
+                "question": question,
+                "response": response,
+                "timestamp": time.time()
+            })
+            
+            # 최근 20개만 유지
+            if len(session["history"]) > 20:
+                session["history"] = session["history"][-20:]
+            
             return response
 
         except Exception as e:
             logger.error(f"Error in RAG query: {str(e)}")
-            return self._get_fallback_response(question)
+            return "죄송합니다. 문제가 발생했습니다. 다시 말씀해주시겠어요?"
+    
+    def _generate_phase1_response(self, question: str, similar_docs: List[Dict], session: Dict) -> str:
+        """Phase 1: 문제 파악 및 기본 전화번호 제시"""
+        question_lower = question.lower()
+        
+        # 문제 유형 파악
+        problem_type = self._identify_problem_type(question)
+        session["problem_type"] = problem_type
+        
+        # 기본 전화번호 제시
+        response = self._get_emergency_numbers(problem_type)
+        
+        # 다음 Phase로 이동 신호
+        session["phase"] = 2
+        
+        return response
+    
+    def _generate_phase2_response(self, question: str, similar_docs: List[Dict], session: Dict) -> str:
+        """Phase 2: 상담사처럼 상담 진행"""
+        # 사용자가 더 자세한 정보를 원하는지, 해결책으로 넘어갈 준비가 되었는지 확인
+        if self._is_ready_for_solution(question):
+            session["phase"] = 3
+            return self._generate_phase3_response(question, similar_docs, session)
+        
+        # 상담 계속
+        return self._generate_counseling_response(question, similar_docs, session)
+    
+    def _generate_phase3_response(self, question: str, similar_docs: List[Dict], session: Dict) -> str:
+        """Phase 3: 해결 방법 제시"""
+        problem_type = session.get("problem_type", "일반")
+        
+        # 지식베이스에서 해결 방법 찾기
+        if similar_docs:
+            solution = similar_docs[0]["content"]
+            
+            response = f"""해결 방법을 안내해드리겠습니다.
+
+{'='*60}
+{solution}
+{'='*60}
+
+추가로 도움이 필요하시면 언제든지 말씀해주세요.
+📞 필요시 다시 연락: 남양주남부경찰서 031-123-4567"""
+            return response
+        
+        # 기본 해결 방법
+        return self._get_general_solution(problem_type)
+    
+    def _identify_problem_type(self, question: str) -> str:
+        """질문에서 문제 유형 파악"""
+        question_lower = question.lower()
+        
+        if "가정폭력" in question_lower or "배우자" in question_lower or "남편" in question_lower or "아내" in question_lower:
+            return "가정폭력"
+        elif "노인" in question_lower or "할머니" in question_lower or "할아버지" in question_lower:
+            return "노인학대"
+        elif "성" in question_lower or "강간" in question_lower:
+            return "성폭력"
+        elif "스토킹" in question_lower:
+            return "스토킹"
+        elif "사기" in question_lower or "보이스피싱" in question_lower:
+            return "사기"
+        elif "응급" in question_lower or "재난" in question_lower:
+            return "응급상황"
+        else:
+            return "일반"
+    
+    def _get_emergency_numbers(self, problem_type: str) -> str:
+        """문제 유형별 긴급전화번호"""
+        numbers = {
+            "가정폭력": {
+                "title": "가정폭력 긴급 신고",
+                "numbers": "📞 112 (경찰) / 📞 1366 (여성긴급전화)",
+                "message": "가정폭력은 법적 보호가 가능합니다. 지금 즉시 신고하세요."
+            },
+            "노인학대": {
+                "title": "노인학대 긴급 신고",
+                "numbers": "📞 1577-1389 (노인보호전문기관) / 📞 112 (경찰)",
+                "message": "노인학대 신고는 24시간 가능하며 신고자 보호가 됩니다."
+            },
+            "성폭력": {
+                "title": "성폭력 긴급 신고",
+                "numbers": "📞 112 (경찰) / 📞 117 (국번없이) (1366번 안내)",
+                "message": "성폭력은 즉시 신고하세요. 의료 증거 보전이 중요합니다."
+            },
+            "스토킹": {
+                "title": "스토킹 신고",
+                "numbers": "📞 112 (경찰)",
+                "message": "스토킹은 범죄입니다. 증거를 모으고 즉시 신고하세요."
+            },
+            "사기": {
+                "title": "사기/보이스피싱 신고",
+                "numbers": "📞 112 (경찰) / 📞 1332 (금융감독원)",
+                "message": "계좌가 보안상 차단되어 있다면 즉시 은행에 연락하세요."
+            },
+            "응급상황": {
+                "title": "응급상황 신고",
+                "numbers": "📞 112 (경찰) / 📞 119 (소방)",
+                "message": "생명이 위급한 상황은 즉시 112 또는 119로 신고하세요."
+            },
+        }
+        
+        info = numbers.get(problem_type, {
+            "title": "긴급 신고",
+            "numbers": "📞 112 (경찰)",
+            "message": "도움이 필요하시면 언제든지 신고하세요."
+        })
+        
+        return f"""안녕하세요. 정말 걱정되는 상황이시군요.
+
+🚨 {info['title']}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{info['numbers']}
+
+💡 {info['message']}
+
+📋 다음 단계:
+현재 상황을 더 자세히 말씀해주시면 구체적인 도움을 드릴 수 있습니다.
+- 언제부터 이런 일이 있었나요?
+- 지금 안전하신가요?
+- 추가로 도움을 받고 싶은 부분이 있으신가요?
+
+계속 이야기해주세요. 지금 여기서 들어드리겠습니다."""
+
+    def _is_ready_for_solution(self, question: str) -> bool:
+        """해결책으로 넘어갈 준비가 되었는지 확인"""
+        question_lower = question.lower()
+        
+        solution_keywords = [
+            "어떻게 해야", "방법", "어떻게 하면", "해결", "대처",
+            "무엇을 해야", "조치", "절차", "가이드"
+        ]
+        
+        for keyword in solution_keywords:
+            if keyword in question_lower:
+                return True
+        
+        return False
+    
+    def _generate_counseling_response(self, question: str, similar_docs: List[Dict], session: Dict) -> str:
+        """상담 응답 생성"""
+        response_parts = []
+        
+        # 공감 표현
+        response_parts.append("정말 힘드신 일이었을 거예요. 너무 고생이 많으셨어요.")
+        
+        # OpenAI가 있으면 GPT로 응답 생성
+        if self.openai_client and similar_docs:
+            try:
+                context = "\n\n".join([doc["content"][:300] for doc in similar_docs[:2]])
+                prompt = f"""상담사 역할을 해주세요. 공감하고 위로하며, 다음 정보를 바탕으로 도움이 되는 답변을 해주세요.
+
+참고 정보:
+{context}
+
+사용자 질문: {question}
+
+짧고 따뜻하게 답변해주세요. (100자 이내)"""
+                
+                result = self.openai_client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=200,
+                    temperature=0.7
+                )
+                response_parts.append(result.choices[0].message.content)
+            except:
+                pass
+        
+        # 추가 안내
+        response_parts.append("\n더 구체적인 상황을 말씀해주시면 정확한 도움을 드릴 수 있어요.")
+        
+        return "\n\n".join(response_parts)
+    
+    def _get_general_solution(self, problem_type: str) -> str:
+        """일반적인 해결 방법"""
+        solutions = {
+            "가정폭력": "가정폭력 피해자는 피해자보호시설, 상담서비스, 법률지원을 받을 수 있습니다. 112로 신고하거나 1366으로 상담받으세요.",
+            "노인학대": "노인보호전문기관(1577-1389)에 신고하세요. 현장조사, 긴급조치, 법적 지원을 받을 수 있습니다.",
+            "성폭력": "성폭력 피해자는 즉시 112로 신고하고 의료기관에서 진단을 받으세요. 증거보전이 중요합니다.",
+            "일반": "도움이 필요하신 분은 112로 신고하거나 남양주남부경찰서(031-123-4567)로 연락하세요."
+        }
+        
+        return solutions.get(problem_type, solutions["일반"])
 
     def _get_fallback_response(self, question: str) -> str:
         """OpenAI API가 없을 때의 대체 응답"""
