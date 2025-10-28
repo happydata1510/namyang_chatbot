@@ -59,12 +59,23 @@ class RAGSystem:
                 logger.warning("OpenAI package not available")
 
     def _load_knowledge_base(self):
-        """지식베이스 데이터 로드"""
+        """지식베이스 데이터 로드 (통합 지식베이스 사용)"""
         try:
-            from namyangju_SP.knowledge_base import get_police_knowledge_base
+            from namyangju_SP.knowledge_base import get_all_knowledge_base
 
-            self.knowledge_base = get_police_knowledge_base()
+            self.knowledge_base = get_all_knowledge_base()
             logger.info(f"Loaded {len(self.knowledge_base)} knowledge base documents")
+
+            # Excel 지식베이스도 로드 시도
+            try:
+                from namyangju_SP.knowledge_base import get_excel_knowledge_base
+
+                excel_kb = get_excel_knowledge_base()
+                if excel_kb:
+                    logger.info(f"Loaded {len(excel_kb)} Excel Q&A documents")
+            except Exception as e:
+                logger.warning(f"Could not load Excel knowledge base: {str(e)}")
+
         except Exception as e:
             logger.error(f"Failed to load knowledge base: {str(e)}")
             self.knowledge_base = []

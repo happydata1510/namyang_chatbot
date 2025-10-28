@@ -3,6 +3,8 @@
 """
 
 from typing import List, Dict, Any
+import os
+import pandas as pd
 
 
 def get_police_knowledge_base() -> List[Dict[str, Any]]:
@@ -273,3 +275,61 @@ def get_police_knowledge_base() -> List[Dict[str, Any]]:
     ]
 
     return knowledge_data
+
+
+def get_excel_knowledge_base() -> List[Dict[str, Any]]:
+    """Excel 파일에서 읽은 Q&A 지식 베이스"""
+    
+    # Excel 파일 경로
+    excel_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'ChatBot_Q&A(통합).xlsx')
+    
+    # 파일이 없으면 빈 리스트 반환
+    if not os.path.exists(excel_path):
+        return []
+    
+    try:
+        # Excel 파일 읽기
+        df = pd.read_excel(excel_path)
+        df.columns = ['번호', '질문', '답변']
+        
+        # 헤더 제거 (첫 2개 행)
+        df = df.iloc[2:].reset_index(drop=True)
+        
+        knowledge_data = []
+        
+        for idx, row in df.iterrows():
+            if pd.notna(row['질문']) and pd.notna(row['답변']):
+                # 답변 내용 정리
+                answer = str(row['답변']).strip()
+                question = str(row['질문']).strip() if pd.notna(row['질문']) else ''
+                
+                # 번호 처리
+                try:
+                    num = int(float(row['번호']))
+                except (ValueError, TypeError):
+                    num = idx + 1
+                
+                knowledge_data.append({
+                    "id": f"excel_{num}",
+                    "content": answer,
+                    "metadata": {
+                        "category": "노인학대",
+                        "type": "Q&A",
+                        "priority": "high",
+                        "question": question,
+                    },
+                })
+        
+        return knowledge_data
+        
+    except Exception as e:
+        print(f"Excel 파일 읽기 오류: {e}")
+        return []
+
+
+def get_all_knowledge_base() -> List[Dict[str, Any]]:
+    """모든 지식 베이스 통합"""
+    police_kb = get_police_knowledge_base()
+    excel_kb = get_excel_knowledge_base()
+    
+    return police_kb + excel_kb
