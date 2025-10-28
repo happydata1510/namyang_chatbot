@@ -4,12 +4,13 @@ RAG (Retrieval-Augmented Generation) 시스템 구현
 
 import os
 import json
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Set
 from django.conf import settings
 import logging
 import threading
 import time
 from functools import lru_cache
+import re
 
 # 초경량 RAG 시스템 - 기본 라이브러리만 사용
 try:
@@ -38,6 +39,12 @@ class RAGSystem:
         # 지식베이스 데이터 로드
         self.knowledge_base = []
         self._load_knowledge_base()
+
+        # 동의어 및 관련어 사전
+        self.synonyms = self._init_synonyms()
+
+        # 인덱스 구축
+        self._build_index()
 
         # OpenAI 클라이언트 초기화
         if (
@@ -80,6 +87,82 @@ class RAGSystem:
             logger.error(f"Failed to load knowledge base: {str(e)}")
             self.knowledge_base = []
 
+    def _init_synonyms(self) -> Dict[str, List[str]]:
+        """동의어 및 관련어 사전 초기화"""
+        return {
+            # 학대 관련
+            "학대": ["폭력", "구타", "폭행", "욕설", "협박", "위협"],
+            "노인학대": ["노인", "할머니", "할아버지", "어르신"],
+            "가정폭력": ["가정내폭력", "배우자폭력", "부부폭력", "가정폭행"],
+            "성폭력": ["성범죄", "강간", "추행", "성추행"],
+            # 신고 관련
+            "신고": ["신고하", "고발", "알림", "접수"],
+            "피해자": ["피해당하", "괴롭힘", "시달림"],
+            "도움": ["구조", "도와주", "상담", "지원"],
+            # 장소 관련
+            "경찰서": ["경찰", "순경", "경찰서", "112"],
+            "병원": ["의원", "병원", "의료원"],
+            "시설": ["요양원", "시설", "기관"],
+            # 상황 관련
+            "응급": ["긴급", "위급", "응급상황", "긴급상황"],
+            "위험": ["위험하", "위험한", "무서운", "두려운"],
+            "긴급": ["당장", "지금", "바로", "즉시"],
+            # 감정 관련
+            "두려운": ["무서운", "겁나는", "불안한"],
+            "힘든": ["어려운", "막막한", "어렵"],
+        }
+
+    def _build_index(self):
+        """인덱스 구축 (토큰화된 단어 매핑)"""
+        self.index = {}  # {token: [doc_idx, ...]}
+        self.doc_tokens = []  # 문서별 토큰 집합
+
+        for idx, doc in enumerate(self.knowledge_base):
+            content = doc.get("content", "").lower()
+            metadata = doc.get("metadata", {})
+
+            # 토큰 추출
+            tokens = self._extract_tokens(content)
+            if metadata:
+                cat = metadata.get("category", "").lower()
+                tokens.update(self._extract_tokens(cat))
+
+                # 질문이 있으면 질문도 토큰화
+                question = metadata.get("question", "").lower()
+                if question:
+                    tokens.update(self._extract_tokens(question))
+
+            self.doc_tokens.append(tokens)
+
+            # 인덱스에 추가
+            for token in tokens:
+                if token not in self.index:
+                    self.index[token] = []
+                self.index[token].append(idx)
+
+    def _extract_tokens(self, text: str) -> Set[str]:
+        """텍스트에서 토큰 추출"""
+        if not text:
+            return set()
+
+        # 한글, 영문, 숫자만 허용
+        text = re.sub(r"[^가-힣a-zA-Z0-9\s]", " ", text)
+
+        tokens = set()
+
+        # 단어 토큰 (2글자 이상)
+        words = text.split()
+        for word in words:
+            if len(word) >= 2:
+                tokens.add(word)
+                # 긴 단어의 경우 n-gram도 추가
+                if len(word) >= 4:
+                    for i in range(len(word) - 1):
+                        if i + 2 <= len(word):
+                            tokens.add(word[i : i + 2])
+
+        return tokens
+
     def _cleanup_cache(self):
         """초경량 캐시 정리 (간단한 LRU 방식)"""
         # 캐시 크기 제한으로 자동 정리됨 (query 메서드에서 처리)
@@ -98,65 +181,102 @@ class RAGSystem:
     def search_similar_documents(
         self, query: str, n_results: int = 5
     ) -> List[Dict[str, Any]]:
-        """초경량 문서 검색 (키워드 기반)"""
+        """개선된 토큰 기반 문서 검색"""
         try:
             if not self.knowledge_base:
                 logger.warning("Knowledge base is empty")
                 return []
 
-            # 초경량 키워드 매칭
-            scored_docs = []
-            query_lower = query.lower()
-            query_words = set(query_lower.split())
-
-            for doc in self.knowledge_base:
+            # 질의 토큰 추출
+            query_tokens = self._extract_tokens(query.lower())
+            
+            # 동의어 확장
+            expanded_tokens = self._expand_with_synonyms(query_tokens)
+            
+            # 토큰 기반 검색
+            doc_scores = {}
+            
+            # 직접 매칭 (높은 점수)
+            for token in query_tokens:
+                if token in self.index:
+                    for doc_idx in self.index[token]:
+                        if doc_idx not in doc_scores:
+                            doc_scores[doc_idx] = 0
+                        doc_scores[doc_idx] += 10  # 직접 매칭 높은 점수
+            
+            # 동의어 매칭 (중간 점수)
+            for token in expanded_tokens:
+                if token in self.index:
+                    for doc_idx in self.index[token]:
+                        if doc_idx not in doc_scores:
+                            doc_scores[doc_idx] = 0
+                        doc_scores[doc_idx] += 5  # 동의어 매칭 중간 점수
+            
+            # 카테고리 및 메타데이터 보너스
+            for doc_idx in doc_scores:
+                doc = self.knowledge_base[doc_idx]
                 content = doc.get("content", "").lower()
                 metadata = doc.get("metadata", {})
                 category = metadata.get("category", "").lower()
-
-                # 간단한 점수 계산
-                score = 0
-
-                # 카테고리 직접 매칭 (높은 점수)
-                # 단어가 카테고리에 포함되어 있는지 확인
-                for word in query_words:
-                    if word in category:
-                        score += 5
-                    # 단어의 일부가 카테고리에 있는지도 확인 (예: "응급상황" in "응급상황인데")
-                    elif len(word) >= 2:
-                        for cat_word in category.split():
-                            if word in cat_word or cat_word in word:
-                                score += 5
-
-                # 내용 키워드 매칭
-                for word in query_words:
-                    if word in content:
-                        score += 1
-                    # 단어의 일부가 내용에 있는지도 확인
-                    elif len(word) >= 3:
-                        # 긴 단어의 서브스트링 찾기
-                        for i in range(len(word) - 2):
-                            substring = word[i : i + 3]
-                            if substring in content:
-                                score += 0.5
-
-                # 최소 점수 이상만 반환
-                if score >= 1:
-                    scored_docs.append(
-                        {
-                            "content": doc.get("content", ""),
-                            "metadata": metadata,
-                            "score": score,
-                        }
-                    )
-
+                question = metadata.get("question", "").lower()
+                
+                # 카테고리 매칭 보너스
+                for token in query_tokens:
+                    if token in category:
+                        doc_scores[doc_idx] += 8
+                
+                # 질문 매칭 보너스
+                if question:
+                    for token in query_tokens:
+                        if token in question:
+                            doc_scores[doc_idx] += 10
+                
+                # TF 가중치 (토큰 빈도)
+                for token in query_tokens:
+                    count = content.count(token)
+                    if count > 0:
+                        doc_scores[doc_idx] += min(count, 5)  # 최대 5점
+            
+            # 점수별 정렬
+            scored_docs = []
+            for doc_idx, score in doc_scores.items():
+                doc = self.knowledge_base[doc_idx]
+                scored_docs.append({
+                    "content": doc.get("content", ""),
+                    "metadata": doc.get("metadata", {}),
+                    "score": score,
+                })
+            
             # 점수순 정렬 후 상위 결과 반환
             scored_docs.sort(key=lambda x: x["score"], reverse=True)
-            return scored_docs[:n_results]
+            
+            # 최소 점수 이상만 반환 (개선: 임계값 낮춤)
+            results = [doc for doc in scored_docs if doc["score"] >= 5]
+            
+            return results[:n_results]
 
         except Exception as e:
             logger.error(f"Error searching documents: {str(e)}")
             return []
+    
+    def _expand_with_synonyms(self, tokens: Set[str]) -> Set[str]:
+        """동의어로 토큰 확장"""
+        expanded = set(tokens)
+        
+        for token in tokens:
+            # 동의어 사전에서 찾기
+            for key, synonyms in self.synonyms.items():
+                if token in key or key in token:
+                    expanded.update(synonyms)
+            
+            # 역방향 검색 (synonym list에서 token 찾기)
+            for key, synonyms in self.synonyms.items():
+                for synonym in synonyms:
+                    if token in synonym or synonym in token:
+                        expanded.add(key)
+                        expanded.update([s for s in synonyms if s != synonym])
+        
+        return expanded
 
     def generate_response(self, query: str, context_docs: List[Dict[str, Any]]) -> str:
         """초경량 응답 생성"""
